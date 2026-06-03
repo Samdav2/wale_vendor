@@ -20,6 +20,7 @@ export interface Guest {
   checkOutDate?: string;
   status: 'Checked-In' | 'Checked-Out' | 'Reserved';
   billTotal: number;
+  isVendor?: boolean;
   createdAt?: string;
 }
 
