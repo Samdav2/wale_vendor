@@ -136,6 +136,25 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return rtf.format(days, 'day');
   };
 
+  // Auto-show modal after 3 seconds if not logged in and on the landing page
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout;
+    // We only want this to trigger if we have explicitly determined they are not logged in
+    // and they are on the root path
+    if (pathname === '/' && !isLoggedIn && isAuthorized) {
+      timer = setTimeout(() => {
+        // Double check they haven't logged in during those 3 seconds
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setShowLoginModal(true);
+        }
+      }, 3000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [pathname, isLoggedIn, isAuthorized]);
+
   const handleModalLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail || !loginPass) {
@@ -256,12 +275,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="p-4 border-t border-slate-800">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white rounded-xl transition-all duration-200 font-medium text-sm"
-          >
-            Logout
-          </button>
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white rounded-xl transition-all duration-200 font-medium text-sm"
+            >
+              Logout
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-xl transition-all duration-200 font-bold text-sm shadow-sm"
+            >
+              Login / Sign Up
+            </button>
+          )}
         </div>
       </aside>
 
