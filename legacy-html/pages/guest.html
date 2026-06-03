@@ -1,0 +1,385 @@
+<div style="margin:0; padding:0; max-width:100%; background:white; font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;">
+  <div id="guestPageNotification" style="position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:#0f172a; color:white; padding:10px 18px; border-radius:40px; font-size:0.8rem; font-weight:500; box-shadow:0 8px 20px rgba(0,0,0,0.15); z-index:9999; transition:transform 0.2s ease; pointer-events:none; max-width:85vw; text-align:center; margin:0;"></div>
+
+  <div style="margin:0; padding:0; border-bottom:1px solid #eef2f6;">
+    <div style="display:flex; gap:0; margin:0; padding:0;">
+      <input type="text" id="guestSearchInput" placeholder="Search by name, phone or room number" style="flex:1; min-width:0; padding:12px; border:1px solid #e2e8f0; border-radius:0; font-size:0.85rem; margin:0;">
+      <button id="searchGuestPageBtn" style="padding:12px 20px; background:#0f172a; color:white; border:none; border-radius:0; font-size:0.8rem; font-weight:600; cursor:pointer; flex-shrink:0; margin:0;">Search</button>
+    </div>
+  </div>
+
+  <div id="guestsGridContainer" style="display:flex; flex-direction:column; gap:16px; margin:0; padding:16px 0;"></div>
+  <div id="noResultsMsg" style="display:none; text-align:center; padding:40px; color:#94a3b8; font-size:0.85rem; margin:0;">No guests found</div>
+</div>
+
+<style>
+  *{margin:0; padding:0; box-sizing:border-box; scrollbar-width:none; -ms-overflow-style:none;}
+  *::-webkit-scrollbar{display:none;}
+  .guest-card{background:white; border:1px solid #e2e8f0; border-radius:12px; transition:all 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.05); width:100%; margin:0;}
+  .guest-card.checked-in{background:#d1fae5; border-left:4px solid #059669;}
+  .guest-card:hover{box-shadow:0 8px 20px rgba(0,0,0,0.08); transform:translateY(-2px); border-color:#cbd5e1;}
+  .guest-card-content{display:flex; gap:14px; padding:16px; width:100%; margin:0;}
+  .guest-photo{flex-shrink:0; width:130px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:16px; overflow:hidden; display:flex; align-items:center; justify-content:center;}
+  .guest-photo-img{width:100%; height:auto; display:block; object-fit:cover;}
+  .guest-details{flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;}
+  .guest-name{font-size:1rem; font-weight:700; color:#0f172a; line-height:1.3; cursor:pointer; display:inline-block; width:fit-content; border-bottom:1px dashed #cbd5e1;}
+  .guest-name:hover{color:#2563eb; border-bottom-color:#3b82f6;}
+  .guest-address{font-size:0.75rem; color:#64748b; line-height:1.3;}
+  .guest-phone{font-size:0.8rem; color:#1e293b; line-height:1.3;}
+  .guest-id{font-size:0.7rem; color:#94a3b8; line-height:1.3;}
+  .booking-dates{font-size:0.7rem; font-weight:600; color:#0f172a; margin-top:2px;}
+  .booking-room{font-size:0.65rem; color:#64748b;}
+  .booking-by{font-size:0.6rem; color:#94a3b8;}
+  @media (max-width:480px){.guest-card-content{padding:12px; gap:10px;} .guest-photo{width:100px;} .guest-name{font-size:0.85rem;}}
+
+  /* Guest Action Modal - ONLY TWO HORIZONTAL BUTTONS */
+  .guest-action-modal{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.7); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; z-index:100000; opacity:0; visibility:hidden; transition:all 0.2s ease;}
+  .guest-action-modal.active{opacity:1; visibility:visible;}
+  .guest-action-modal .modal-card{background:white; width:90%; max-width:300px; border-radius:12px; box-shadow:0 20px 35px rgba(0,0,0,0.3); transform:scale(0.96); transition:transform 0.2s ease; overflow:hidden;}
+  .guest-action-modal.active .modal-card{transform:scale(1);}
+  .guest-action-modal .modal-header{background:#0f172a; padding:14px; color:white; font-weight:600; font-size:0.9rem; text-align:center;}
+  .guest-action-modal .modal-buttons{display:grid; grid-template-columns:1fr 1fr; border-top:none;}
+  .guest-action-modal .modal-buttons button{width:100%; padding:14px 0; border:none; font-size:0.85rem; font-weight:600; cursor:pointer; background:#f8fafc;}
+  .guest-action-modal .modal-buttons button:first-child{border-right:1px solid #e2e8f0;}
+
+  /* Branded Confirm Popup */
+  .brand-confirm-overlay{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.7); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; z-index:100001; opacity:0; visibility:hidden; transition:all 0.2s ease;}
+  .brand-confirm-overlay.active{opacity:1; visibility:visible;}
+  .brand-confirm-card{background:white; width:90%; max-width:280px; border-radius:12px; box-shadow:0 20px 35px rgba(0,0,0,0.3); transform:scale(0.96); transition:transform 0.2s ease; overflow:hidden; text-align:center;}
+  .brand-confirm-overlay.active .brand-confirm-card{transform:scale(1);}
+  .brand-confirm-header{background:#0f172a; padding:12px; color:white; font-weight:600; font-size:0.85rem;}
+  .brand-confirm-message{padding:20px 16px; font-size:0.9rem; color:#0f172a; font-weight:500; background:white; word-break:break-word;}
+  .brand-confirm-buttons{display:flex; gap:0; border-top:1px solid #eef2f6;}
+  .brand-confirm-buttons button{flex:1; padding:12px; border:none; font-size:0.85rem; font-weight:600; cursor:pointer; transition:0.1s; background:#f8fafc;}
+  .brand-confirm-buttons button:first-child{border-right:1px solid #e2e8f0; color:#dc2626;}
+  .brand-confirm-buttons button:last-child{color:#059669;}
+</style>
+
+<script>
+(function(){
+    function getTodayDate() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    
+    const TODAY = getTodayDate();
+    const TOMORROW = (() => {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    })();
+    const DAY_AFTER = (() => {
+      const d = new Date();
+      d.setDate(d.getDate() + 2);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    })();
+    const NEXT_WEEK = (() => {
+      const d = new Date();
+      d.setDate(d.getDate() + 7);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    })();
+    const NEXT_MONTH = (() => {
+      const d = new Date();
+      d.setDate(d.getDate() + 30);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    })();
+    
+    let guestsDatabase = [
+      { id: 1, name: "Rajesh Kumar", address: "Delhi", phone: "9876543210", idNumber: "DL123456789012", profileImage: "https://randomuser.me/api/portraits/men/32.jpg", bookings: [{ bookingId: "BK001", checkin: TODAY, checkout: (() => {let d=new Date(); d.setDate(d.getDate()+3); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })(), roomName: "Deluxe Room", roomNumber: "101", bookedBy: "Admin" }], checkedIn: false },
+      { id: 2, name: "Priya Sharma", address: "Mumbai", phone: "8765432109", idNumber: "MH987654321", profileImage: "https://randomuser.me/api/portraits/women/68.jpg", bookings: [{ bookingId: "BK002", checkin: TOMORROW, checkout: (() => {let d=new Date(); d.setDate(d.getDate()+4); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })(), roomName: "Suite Room", roomNumber: "201", bookedBy: "Front Desk Manager" }], checkedIn: false },
+      { id: 3, name: "Amit Verma", address: "Lucknow", phone: "7654321098", idNumber: "UP2024123456", profileImage: "https://randomuser.me/api/portraits/men/45.jpg", bookings: [{ bookingId: "BK003", checkin: DAY_AFTER, checkout: (() => {let d=new Date(); d.setDate(d.getDate()+5); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })(), roomName: "Standard Room", roomNumber: "301", bookedBy: "Staff" }], checkedIn: false },
+      { id: 4, name: "Sneha Patel", address: "Ahmedabad", phone: "6543210987", idNumber: "GJ567890123", profileImage: "https://randomuser.me/api/portraits/women/44.jpg", bookings: [{ bookingId: "BK004", checkin: NEXT_WEEK, checkout: (() => {let d=new Date(); d.setDate(d.getDate()+10); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })(), roomName: "Family Suite", roomNumber: "401", bookedBy: "Booking Agent" }], checkedIn: false },
+      { id: 5, name: "Rahul Mehta", address: "Gurgaon", phone: "8899776655", idNumber: "HR0987654321", profileImage: "https://randomuser.me/api/portraits/men/22.jpg", bookings: [{ bookingId: "BK005", checkin: TODAY, checkout: (() => {let d=new Date(); d.setDate(d.getDate()+2); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })(), roomName: "Deluxe Room", roomNumber: "103", bookedBy: "Admin" }], checkedIn: true },
+      { id: 6, name: "Neha Gupta", address: "Noida", phone: "9988776655", idNumber: "UP7890LMN12", profileImage: "https://randomuser.me/api/portraits/women/55.jpg", bookings: [{ bookingId: "BK006", checkin: NEXT_MONTH, checkout: (() => {let d=new Date(); d.setDate(d.getDate()+35); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })(), roomName: "Suite Room", roomNumber: "202", bookedBy: "Admin" }], checkedIn: false }
+    ];
+    
+    function filterActiveGuests() {
+      const today = getTodayDate();
+      guestsDatabase = guestsDatabase.filter(guest => {
+        if(!guest.bookings || guest.bookings.length === 0) return false;
+        const checkoutDate = guest.bookings[0].checkout;
+        return checkoutDate >= today;
+      });
+    }
+    
+    function sortGuests(guests) {
+      return [...guests].sort((a, b) => {
+        if(a.checkedIn === true && b.checkedIn !== true) return -1;
+        if(a.checkedIn !== true && b.checkedIn === true) return 1;
+        if(a.checkedIn === true && b.checkedIn === true) {
+          const aCheckout = a.bookings[0]?.checkout || '';
+          const bCheckout = b.bookings[0]?.checkout || '';
+          return aCheckout.localeCompare(bCheckout);
+        }
+        const aCheckin = a.bookings[0]?.checkin || '9999-12-31';
+        const bCheckin = b.bookings[0]?.checkin || '9999-12-31';
+        return aCheckin.localeCompare(bCheckin);
+      });
+    }
+    
+    let notificationTimeout = null;
+    const toast = document.getElementById('guestPageNotification');
+    const container = document.getElementById('guestsGridContainer');
+    const searchInput = document.getElementById('guestSearchInput');
+    const searchBtn = document.getElementById('searchGuestPageBtn');
+    const noResults = document.getElementById('noResultsMsg');
+    
+    function brandConfirm(message, onConfirm, onCancel) {
+      let confirmOverlay = document.getElementById('brandConfirmOverlay');
+      if(!confirmOverlay){
+        confirmOverlay = document.createElement('div');
+        confirmOverlay.id = 'brandConfirmOverlay';
+        confirmOverlay.className = 'brand-confirm-overlay';
+        confirmOverlay.innerHTML = `
+          <div class="brand-confirm-card">
+            <div class="brand-confirm-header">Confirm Action</div>
+            <div class="brand-confirm-message"></div>
+            <div class="brand-confirm-buttons">
+              <button class="confirm-no-btn">Cancel</button>
+              <button class="confirm-yes-btn">Confirm</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(confirmOverlay);
+      }
+      const overlay = confirmOverlay;
+      const msgDiv = overlay.querySelector('.brand-confirm-message');
+      msgDiv.textContent = message;
+      const yesBtn = overlay.querySelector('.confirm-yes-btn');
+      const noBtn = overlay.querySelector('.confirm-no-btn');
+      
+      const cleanup = () => {
+        overlay.classList.remove('active');
+        yesBtn.removeEventListener('click', yesHandler);
+        noBtn.removeEventListener('click', noHandler);
+      };
+      const yesHandler = () => { cleanup(); if(onConfirm) onConfirm(); };
+      const noHandler = () => { cleanup(); if(onCancel) onCancel(); };
+      yesBtn.addEventListener('click', yesHandler);
+      noBtn.addEventListener('click', noHandler);
+      overlay.classList.add('active');
+    }
+    
+    function showNotification(msg, isErr=false){ 
+      if(notificationTimeout) clearTimeout(notificationTimeout); 
+      toast.textContent=msg; 
+      toast.style.background= isErr ? '#b91c1c' : '#0f172a';
+      toast.style.transform='translateX(-50%) translateY(0)'; 
+      notificationTimeout=setTimeout(()=>{ toast.style.transform='translateX(-50%) translateY(-100px)'; },2500); 
+    }
+    
+    function maskId(id){ if(!id) return ''; if(id.length>=8){ let m=''; for(let i=0;i<id.length-4;i++) m+='*'; return m+id.slice(-4); } if(id.length>=4) return '****'+id.slice(-4); return '****'; }
+    function formatDate(d){ if(!d) return ''; return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
+    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    
+    let currentGuestForAction = null;
+    let actionModal = null;
+    
+    function initActionModal(){
+      const modalDiv = document.createElement('div');
+      modalDiv.className = 'guest-action-modal';
+      modalDiv.id = 'guestActionModal';
+      modalDiv.innerHTML = `
+        <div class="modal-card">
+          <div class="modal-header">Guest Action</div>
+          <div class="modal-buttons" id="modalButtonsRow">
+            <button id="actionLeftBtn">Check In</button>
+            <button id="actionRightBtn">Cancel</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modalDiv);
+      return modalDiv;
+    }
+    
+    function closeActionModal(){
+      if(actionModal) actionModal.classList.remove('active');
+      currentGuestForAction = null;
+    }
+    
+    function handleCheckIn(){
+      if(!currentGuestForAction) { closeActionModal(); return; }
+      const today = getTodayDate();
+      const guestCheckin = currentGuestForAction.bookings[0]?.checkin;
+      
+      if(currentGuestForAction.checkedIn === true){
+        showNotification(`${currentGuestForAction.name} is already checked in`, true);
+        closeActionModal();
+        return;
+      }
+      
+      if(guestCheckin !== today){
+        showNotification(`Check in only allowed on check-in date`, true);
+        closeActionModal();
+        return;
+      }
+      
+      brandConfirm(
+        `Check in ${currentGuestForAction.name}?`,
+        () => {
+          if(currentGuestForAction){
+            currentGuestForAction.checkedIn = true;
+            showNotification(`${currentGuestForAction.name} checked in successfully`);
+            refreshDisplay();
+          }
+          closeActionModal();
+        },
+        () => { closeActionModal(); }
+      );
+    }
+    
+    function handleCancellation(){
+      if(!currentGuestForAction) { closeActionModal(); return; }
+      const guestName = currentGuestForAction.name;
+      const guestId = currentGuestForAction.id;
+      const today = getTodayDate();
+      const guestCheckin = currentGuestForAction.bookings[0]?.checkin;
+      
+      if(guestCheckin === today && currentGuestForAction.checkedIn !== true){
+        showNotification(`Cannot cancel booking on check-in date`, true);
+        closeActionModal();
+        return;
+      }
+      
+      brandConfirm(
+        `Cancel booking for ${guestName}?`,
+        () => {
+          const idx = guestsDatabase.findIndex(g => g.id === guestId);
+          if(idx !== -1){
+            guestsDatabase.splice(idx, 1);
+            showNotification(`${guestName} booking cancelled`);
+            refreshDisplay();
+          } else {
+            showNotification(`Guest not found`, true);
+          }
+          closeActionModal();
+        },
+        () => { closeActionModal(); }
+      );
+    }
+    
+    function openActionModal(guest){
+      if(!actionModal) return;
+      currentGuestForAction = guest;
+      const leftBtn = document.getElementById('actionLeftBtn');
+      const rightBtn = document.getElementById('actionRightBtn');
+      const today = getTodayDate();
+      const guestCheckin = guest.bookings[0]?.checkin;
+      
+      if(guest.checkedIn === true){
+        // Already checked in - show Cancellation + Cancell
+        leftBtn.textContent = 'Cancellation';
+        leftBtn.style.color = '#dc2626';
+        leftBtn.onclick = handleCancellation;
+        rightBtn.textContent = 'Cancell';
+        rightBtn.style.color = '#475569';
+        rightBtn.onclick = closeActionModal;
+      }
+      else if(guestCheckin === today){
+        // Today's check-in - show Check In + Cancel
+        leftBtn.textContent = 'Check In';
+        leftBtn.style.color = '#059669';
+        leftBtn.onclick = handleCheckIn;
+        rightBtn.textContent = 'Cancel';
+        rightBtn.style.color = '#475569';
+        rightBtn.onclick = closeActionModal;
+      }
+      else if(guestCheckin > today){
+        // Future booking - show Cancellation + Cancell
+        leftBtn.textContent = 'Cancellation';
+        leftBtn.style.color = '#dc2626';
+        leftBtn.onclick = handleCancellation;
+        rightBtn.textContent = 'Cancell';
+        rightBtn.style.color = '#475569';
+        rightBtn.onclick = closeActionModal;
+      }
+      else {
+        leftBtn.textContent = 'Close';
+        leftBtn.style.color = '#475569';
+        leftBtn.onclick = closeActionModal;
+        rightBtn.textContent = 'Cancel';
+        rightBtn.style.color = '#475569';
+        rightBtn.onclick = closeActionModal;
+      }
+      
+      actionModal.classList.add('active');
+    }
+    
+    function renderGuests(list){
+      if(!list || !list.length){ 
+        container.style.display='none'; 
+        noResults.style.display='block'; 
+        return; 
+      }
+      container.style.display='flex'; 
+      noResults.style.display='none'; 
+      container.innerHTML='';
+      
+      list.forEach(g=>{
+        const mid=maskId(g.idNumber);
+        const b=g.bookings&&g.bookings[0];
+        const cardDiv=document.createElement('div');
+        cardDiv.className='guest-card';
+        if(g.checkedIn===true) cardDiv.classList.add('checked-in');
+        cardDiv.innerHTML=`<div class="guest-card-content"><div class="guest-photo"><img class="guest-photo-img" src="${escapeHtml(g.profileImage)}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(g.name)}&background=0f172a&color=fff&size=130&length=2&fontsize=45'"></div><div class="guest-details"><div class="guest-name" data-id="${g.id}">${escapeHtml(g.name)}</div><div class="guest-address">${escapeHtml(g.address)}</div><div class="guest-phone">${escapeHtml(g.phone)}</div><div class="guest-id">${escapeHtml(mid)}</div>${b?`<div class="booking-dates">${formatDate(b.checkin)} → ${formatDate(b.checkout)}</div><div class="booking-room">${escapeHtml(b.roomName)} (${escapeHtml(b.roomNumber)})</div><div class="booking-by">Booked by: ${escapeHtml(b.bookedBy)}</div>`:''}</div></div>`;
+        container.appendChild(cardDiv);
+      });
+      
+      const nameElements = document.querySelectorAll('.guest-name');
+      nameElements.forEach(el => {
+        const newEl = el.cloneNode(true);
+        el.parentNode.replaceChild(newEl, el);
+        newEl.addEventListener('click', function(e){
+          e.stopPropagation();
+          const idVal = this.getAttribute('data-id');
+          if(idVal){
+            const guest = guestsDatabase.find(g => g.id == idVal);
+            if(guest) openActionModal(guest);
+          }
+        });
+      });
+      
+      setTimeout(()=>{
+        document.querySelectorAll('.guest-card').forEach(card=>{
+          const img=card.querySelector('.guest-photo-img');
+          const details=card.querySelector('.guest-details');
+          if(img && details && details.offsetHeight) img.style.height=details.offsetHeight+'px';
+        });
+      },50);
+    }
+    
+    let currentSearchQuery = "";
+    function refreshDisplay(){
+      filterActiveGuests();
+      let activeGuests = [...guestsDatabase];
+      if(currentSearchQuery && currentSearchQuery.trim() !== ""){
+        const q = currentSearchQuery.trim().toLowerCase();
+        activeGuests = activeGuests.filter(g => 
+          g.name.toLowerCase().includes(q) || 
+          g.phone.includes(q) || 
+          (g.bookings && g.bookings.some(b => b.roomNumber.includes(q) || b.roomName.toLowerCase().includes(q)))
+        );
+      }
+      const sortedGuests = sortGuests(activeGuests);
+      renderGuests(sortedGuests);
+    }
+    
+    function performSearch(){
+      currentSearchQuery = searchInput.value.trim();
+      refreshDisplay();
+    }
+    
+    actionModal = initActionModal();
+    
+    if(actionModal) actionModal.addEventListener('click', (e) => { if(e.target === actionModal) closeActionModal(); });
+    
+    searchBtn.onclick = performSearch;
+    searchInput.onkeypress = e => { if(e.key === 'Enter') performSearch(); };
+    
+    refreshDisplay();
+    setInterval(() => { refreshDisplay(); }, 60000);
+})();
+</script>

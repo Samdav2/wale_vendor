@@ -1,0 +1,383 @@
+<div style="width:100%; background:white; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; margin:0; padding:0; overflow:hidden;">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    ::-webkit-scrollbar{display:none;}
+    *{-ms-overflow-style:none;scrollbar-width:none;}
+    body,html{margin:0;padding:0;width:100%;background:white;overflow:hidden;}
+    .calendar-day{transition:all 0.1s;}
+    .calendar-day:active{opacity:0.7;}
+  </style>
+  
+  <div style="width:100%;height:100vh;display:flex;flex-direction:column;background:white;overflow:hidden;">
+    <!-- Header - NO underline -->
+    <div style="background:white;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <div style="font-size:0.9rem;font-weight:700;color:#0f172a;" id="calMonthYear">March 2026</div>
+      <div style="display:flex;gap:5px;">
+        <button style="background:#0f172a;color:white;border:none;padding:5px 12px;border-radius:8px;font-size:0.6rem;font-weight:500;cursor:pointer;" id="calTodayBtn">Today</button>
+        <button style="background:white;border:1px solid #e2e8f0;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.75rem;color:#1e293b;display:flex;align-items:center;justify-content:center;" id="calPrevBtn">←</button>
+        <button style="background:white;border:1px solid #e2e8f0;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.75rem;color:#1e293b;display:flex;align-items:center;justify-content:center;" id="calNextBtn">→</button>
+      </div>
+    </div>
+    
+    <!-- Small gap -->
+    <div style="height:8px;flex-shrink:0;"></div>
+    
+    <!-- Calendar Container -->
+    <div style="flex:1;overflow-y:auto;overflow-x:auto;min-height:0;">
+      <!-- Top border line of calendar -->
+      <div style="border-top:1px solid #e2e8f0;"></div>
+      
+      <div style="display:flex;gap:0;width:100%;">
+        <!-- Vertical Weekdays -->
+        <div style="display:flex;flex-direction:column;gap:0;width:32px;flex-shrink:0;">
+          <div style="background:white;border-bottom:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:10px 0;text-align:center;font-size:0.6rem;font-weight:600;color:#64748b;min-height:58px;display:flex;align-items:center;justify-content:center;">S</div>
+          <div style="background:white;border-bottom:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:10px 0;text-align:center;font-size:0.6rem;font-weight:600;color:#64748b;min-height:58px;display:flex;align-items:center;justify-content:center;">M</div>
+          <div style="background:white;border-bottom:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:10px 0;text-align:center;font-size:0.6rem;font-weight:600;color:#64748b;min-height:58px;display:flex;align-items:center;justify-content:center;">T</div>
+          <div style="background:white;border-bottom:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:10px 0;text-align:center;font-size:0.6rem;font-weight:600;color:#64748b;min-height:58px;display:flex;align-items:center;justify-content:center;">W</div>
+          <div style="background:white;border-bottom:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:10px 0;text-align:center;font-size:0.6rem;font-weight:600;color:#64748b;min-height:58px;display:flex;align-items:center;justify-content:center;">T</div>
+          <div style="background:white;border-bottom:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:10px 0;text-align:center;font-size:0.6rem;font-weight:600;color:#64748b;min-height:58px;display:flex;align-items:center;justify-content:center;">F</div>
+          <div style="background:white;border-bottom:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:10px 0;text-align:center;font-size:0.6rem;font-weight:600;color:#64748b;min-height:58px;display:flex;align-items:center;justify-content:center;">S</div>
+        </div>
+        
+        <!-- Dates Grid -->
+        <div id="calendarGrid" style="flex:1;display:flex;gap:0;"></div>
+      </div>
+      
+      <!-- Bottom border line of calendar -->
+      <div style="border-bottom:1px solid #e2e8f0;"></div>
+    </div>
+  </div>
+  
+  <!-- Modal -->
+  <div id="calModalOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:flex-end;justify-content:center;visibility:hidden;opacity:0;transition:all 0.25s ease;">
+    <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:100%;max-height:70vh;overflow:hidden;display:flex;flex-direction:column;animation:slideUpCal 0.3s ease;">
+      <div style="padding:12px 16px;border-bottom:1px solid #eef2f6;font-weight:700;font-size:0.85rem;color:#0f172a;background:white;" id="calModalHeader">Bookings</div>
+      <div style="flex:1;overflow-y:auto;padding:12px;" id="calModalBody"></div>
+      <button style="margin:8px 12px 16px;padding:10px;background:#0f172a;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.75rem;" id="calCloseModalBtn">Close</button>
+    </div>
+  </div>
+  <style>@keyframes slideUpCal{from{transform:translateY(100%);}to{transform:translateY(0);}}</style>
+  <div id="calToastMsg" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#0f172a;color:white;padding:5px 12px;border-radius:8px;font-size:0.6rem;z-index:10001;opacity:0;visibility:hidden;transition:all 0.2s;white-space:nowrap;"></div>
+</div>
+
+<script>
+(function(){
+  const TOTAL_ROOMS = 6;
+  const ALL_ROOM_NUMBERS = ["101","102","103","104","105","106"];
+  
+  const guestImages = [
+    "https://randomuser.me/api/portraits/men/32.jpg","https://randomuser.me/api/portraits/women/68.jpg","https://randomuser.me/api/portraits/men/45.jpg","https://randomuser.me/api/portraits/women/44.jpg",
+    "https://randomuser.me/api/portraits/men/22.jpg","https://randomuser.me/api/portraits/women/55.jpg","https://randomuser.me/api/portraits/men/15.jpg","https://randomuser.me/api/portraits/women/28.jpg",
+    "https://randomuser.me/api/portraits/men/52.jpg","https://randomuser.me/api/portraits/women/33.jpg","https://randomuser.me/api/portraits/men/67.jpg","https://randomuser.me/api/portraits/women/19.jpg",
+    "https://randomuser.me/api/portraits/men/91.jpg","https://randomuser.me/api/portraits/women/42.jpg","https://randomuser.me/api/portraits/men/75.jpg","https://randomuser.me/api/portraits/women/88.jpg",
+    "https://randomuser.me/api/portraits/men/11.jpg","https://randomuser.me/api/portraits/women/62.jpg","https://randomuser.me/api/portraits/men/83.jpg","https://randomuser.me/api/portraits/women/77.jpg",
+    "https://randomuser.me/api/portraits/men/99.jpg","https://randomuser.me/api/portraits/women/50.jpg","https://randomuser.me/api/portraits/men/28.jpg","https://randomuser.me/api/portraits/women/95.jpg"
+  ];
+  
+  const bookings = [
+    {id:1,guestName:"Rajesh Kumar",roomNumber:"101",image:guestImages[0],checkin:"2025-12-01",checkout:"2025-12-05",bookedBy:"Rajesh (Admin)"},
+    {id:2,guestName:"Priya Sharma",roomNumber:"202",image:guestImages[1],checkin:"2025-12-10",checkout:"2025-12-15",bookedBy:"Priya (Reception)"},
+    {id:3,guestName:"Amit Verma",roomNumber:"103",image:guestImages[2],checkin:"2025-12-15",checkout:"2025-12-18",bookedBy:"GW (Online)"},
+    {id:4,guestName:"Rahul Sharma",roomNumber:"101",image:guestImages[3],checkin:"2026-03-02",checkout:"2026-03-06",bookedBy:"Rajesh (Admin)"},
+    {id:5,guestName:"Priya Verma",roomNumber:"202",image:guestImages[4],checkin:"2026-03-03",checkout:"2026-03-07",bookedBy:"Priya (Reception)"},
+    {id:6,guestName:"Amit Singh",roomNumber:"103",image:guestImages[5],checkin:"2026-03-05",checkout:"2026-03-09",bookedBy:"GW (Online)"},
+    {id:7,guestName:"Neha Gupta",roomNumber:"204",image:guestImages[6],checkin:"2026-03-08",checkout:"2026-03-12",bookedBy:"Amit (Manager)"},
+    {id:8,guestName:"Vikram Mehta",roomNumber:"301",image:guestImages[7],checkin:"2026-03-10",checkout:"2026-03-14",bookedBy:"GW (Website)"},
+    {id:9,guestName:"Sneha Kapoor",roomNumber:"105",image:guestImages[8],checkin:"2026-03-12",checkout:"2026-03-16",bookedBy:"Neha (Front Desk)"},
+    {id:10,guestName:"Rajesh Kumar",roomNumber:"106",image:guestImages[9],checkin:"2026-03-15",checkout:"2026-03-19",bookedBy:"Vikram (Staff)"},
+    {id:11,guestName:"Divya Sharma",roomNumber:"207",image:guestImages[10],checkin:"2026-03-18",checkout:"2026-03-22",bookedBy:"GW (Booking.com)"},
+    {id:12,guestName:"Manish Jain",roomNumber:"302",image:guestImages[11],checkin:"2026-03-20",checkout:"2026-03-24",bookedBy:"Rajesh (Admin)"},
+    {id:13,guestName:"Kavya Nair",roomNumber:"108",image:guestImages[12],checkin:"2026-03-22",checkout:"2026-03-26",bookedBy:"GW (Direct)"},
+    {id:14,guestName:"Anjali Mehta",roomNumber:"109",image:guestImages[13],checkin:"2026-03-25",checkout:"2026-03-29",bookedBy:"Priya (Reception)"},
+    {id:15,guestName:"Rohit Sharma",roomNumber:"208",image:guestImages[14],checkin:"2026-03-27",checkout:"2026-03-31",bookedBy:"GW (Online)"},
+    {id:16,guestName:"Raj Malhotra",roomNumber:"101",image:guestImages[15],checkin:"2026-03-29",checkout:"2026-04-02",bookedBy:"Rajesh (Admin)"},
+    {id:17,guestName:"Arjun Reddy",roomNumber:"201",image:guestImages[16],checkin:"2026-04-05",checkout:"2026-04-09",bookedBy:"Amit (Manager)"},
+    {id:18,guestName:"Kunal Verma",roomNumber:"202",image:guestImages[17],checkin:"2026-04-07",checkout:"2026-04-11",bookedBy:"GW (Direct)"},
+    {id:19,guestName:"Bhavna Shah",roomNumber:"203",image:guestImages[18],checkin:"2026-04-10",checkout:"2026-04-14",bookedBy:"Rajesh (Admin)"},
+    {id:20,guestName:"Sunita Williams",roomNumber:"104",image:guestImages[19],checkin:"2026-05-02",checkout:"2026-05-06",bookedBy:"Rajesh (Admin)"},
+    {id:21,guestName:"Rakesh Sinha",roomNumber:"101",image:guestImages[20],checkin:"2026-06-05",checkout:"2026-06-10",bookedBy:"Admin"},
+    {id:22,guestName:"Monika Agarwal",roomNumber:"102",image:guestImages[21],checkin:"2026-06-08",checkout:"2026-06-12",bookedBy:"GW (Online)"},
+    {id:23,guestName:"Vikram Singh",roomNumber:"103",image:guestImages[22],checkin:"2026-06-12",checkout:"2026-06-16",bookedBy:"Reception"},
+    {id:24,guestName:"Neha Kapoor",roomNumber:"104",image:guestImages[23],checkin:"2026-06-15",checkout:"2026-06-20",bookedBy:"Agent"}
+  ];
+  
+  // Set to current month
+  let currentDate = new Date();
+  let currentYear = currentDate.getFullYear();
+  let currentMonth = currentDate.getMonth();
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  
+  function showToast(msg){
+    let t=document.getElementById('calToastMsg');
+    t.textContent=msg; t.style.opacity='1'; t.style.visibility='visible';
+    setTimeout(()=>{ t.style.opacity='0'; t.style.visibility='hidden'; },1500);
+  }
+  
+  function isPastDate(year, month, day){
+    let today=new Date();
+    today.setHours(0,0,0,0);
+    let checkDate=new Date(year,month,day);
+    return checkDate < today;
+  }
+  
+  function getBookedRoomsForDate(y,m,d){
+    let ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let bookedRooms=[];
+    bookings.forEach(b=>{ if(b.checkin<=ds && b.checkout>ds) bookedRooms.push(b.roomNumber); });
+    return [...new Set(bookedRooms)];
+  }
+  
+  function getAvailableRoomsForDate(y,m,d){
+    let booked=getBookedRoomsForDate(y,m,d);
+    return ALL_ROOM_NUMBERS.filter(r=>!booked.includes(r));
+  }
+  
+  function getGuestsForDate(y,m,d){
+    let ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    return bookings.filter(b=>b.checkin<=ds && b.checkout>ds);
+  }
+  
+  function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>]/g,function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+  
+  function renderCalendar(){
+    let firstDay=new Date(currentYear,currentMonth,1);
+    let startWeekday=firstDay.getDay();
+    let daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+    
+    let today=new Date();
+    let isCurrMonthView=(today.getFullYear()===currentYear && today.getMonth()===currentMonth);
+    let todayDate=today.getDate();
+    
+    let weeks = [];
+    let currentDay = 1;
+    let firstWeek = [];
+    for(let i=0; i<startWeekday; i++) firstWeek.push(null);
+    for(let i=startWeekday; i<7 && currentDay<=daysInMonth; i++) firstWeek.push(currentDay++);
+    weeks.push(firstWeek);
+    
+    while(currentDay <= daysInMonth){
+      let week = [];
+      for(let i=0; i<7 && currentDay<=daysInMonth; i++) week.push(currentDay++);
+      while(week.length < 7) week.push(null);
+      weeks.push(week);
+    }
+    
+    let gridContainer=document.getElementById('calendarGrid');
+    gridContainer.innerHTML='';
+    
+    let colWidth = (100 / weeks.length) + '%';
+    
+    for(let w=0; w<weeks.length; w++){
+      let colDiv=document.createElement('div');
+      colDiv.style.display='flex';
+      colDiv.style.flexDirection='column';
+      colDiv.style.gap='0';
+      colDiv.style.width=colWidth;
+      colDiv.style.flex='1';
+      
+      let weekDays = weeks[w];
+      for(let weekdayIdx=0; weekdayIdx<7; weekdayIdx++){
+        let dateVal = weekDays[weekdayIdx];
+        if(dateVal===null){
+          let emptyDiv=document.createElement('div');
+          emptyDiv.style.background='white';
+          emptyDiv.style.borderBottom='1px solid #e2e8f0';
+          emptyDiv.style.borderRight='1px solid #e2e8f0';
+          emptyDiv.style.padding='8px 2px';
+          emptyDiv.style.minHeight='58px';
+          emptyDiv.style.display='flex';
+          emptyDiv.style.flexDirection='column';
+          emptyDiv.style.alignItems='center';
+          colDiv.appendChild(emptyDiv);
+        } else {
+          let bookedRooms=getBookedRoomsForDate(currentYear,currentMonth,dateVal);
+          let bc=bookedRooms.length;
+          let guests=getGuestsForDate(currentYear,currentMonth,dateVal);
+          let availableRooms=getAvailableRoomsForDate(currentYear,currentMonth,dateVal);
+          
+          let dayDiv=document.createElement('div');
+          dayDiv.style.background='white';
+          dayDiv.style.borderBottom='1px solid #e2e8f0';
+          dayDiv.style.borderRight='1px solid #e2e8f0';
+          dayDiv.style.padding='6px 2px';
+          dayDiv.style.display='flex';
+          dayDiv.style.flexDirection='column';
+          dayDiv.style.alignItems='center';
+          dayDiv.style.textAlign='center';
+          dayDiv.style.minHeight='58px';
+          dayDiv.style.cursor='pointer';
+          
+          // Highlight today's date
+          if(isCurrMonthView && dateVal===todayDate){
+            dayDiv.style.backgroundColor='#0f172a';
+          }
+          
+          let numDiv=document.createElement('div');
+          numDiv.style.fontSize='0.7rem';
+          numDiv.style.fontWeight='700';
+          numDiv.style.color= (isCurrMonthView && dateVal===todayDate) ? 'white' : '#0f172a';
+          numDiv.style.marginBottom='2px';
+          numDiv.innerHTML=`<span>${dateVal}</span>`;
+          dayDiv.appendChild(numDiv);
+          
+          let statsDiv=document.createElement('div');
+          let ratioSpan=document.createElement('span');
+          ratioSpan.style.fontSize='0.55rem';
+          ratioSpan.style.fontWeight='700';
+          ratioSpan.style.padding='2px 6px';
+          ratioSpan.style.borderRadius='8px';
+          ratioSpan.style.display='inline-block';
+          ratioSpan.style.minWidth='38px';
+          
+          if(isCurrMonthView && dateVal===todayDate){
+            if(bc===0){ ratioSpan.style.background='#ffffff'; ratioSpan.style.color='#166534'; }
+            else if(bc>=TOTAL_ROOMS){ ratioSpan.style.background='#ffffff'; ratioSpan.style.color='#991b1b'; }
+            else{ ratioSpan.style.background='#ffffff'; ratioSpan.style.color='#9a3412'; }
+          } else {
+            if(bc===0){ ratioSpan.style.background='#dcfce7'; ratioSpan.style.color='#166534'; }
+            else if(bc>=TOTAL_ROOMS){ ratioSpan.style.background='#fee2e2'; ratioSpan.style.color='#991b1b'; }
+            else{ ratioSpan.style.background='#fed7aa'; ratioSpan.style.color='#9a3412'; }
+          }
+          ratioSpan.textContent=`${bc}/${TOTAL_ROOMS}`;
+          statsDiv.appendChild(ratioSpan);
+          dayDiv.appendChild(statsDiv);
+          
+          dayDiv.onclick=(function(d,guests,availableRooms){
+            return function(){
+              if(guests.length===0 && availableRooms.length===TOTAL_ROOMS){
+                showToast(`✨ No bookings on ${d} ${monthNames[currentMonth]}`);
+              } else {
+                showDetailModal(d,guests,availableRooms);
+              }
+            };
+          })(dateVal,guests,availableRooms);
+          
+          colDiv.appendChild(dayDiv);
+        }
+      }
+      gridContainer.appendChild(colDiv);
+    }
+    
+    document.getElementById('calMonthYear').textContent=`${monthNames[currentMonth]} ${currentYear}`;
+  }
+  
+  function showDetailModal(day,guests,availableRooms){
+    let modal=document.getElementById('calModalOverlay'), header=document.getElementById('calModalHeader'), body=document.getElementById('calModalBody');
+    let bookedCount=guests.length;
+    let availableCount=availableRooms.length;
+    let isPast=isPastDate(currentYear,currentMonth,day);
+    
+    header.innerHTML=`📅 ${day} ${monthNames[currentMonth]} ${currentYear} · ${bookedCount} Booked · ${availableCount} Available`;
+    body.innerHTML='';
+    
+    if(guests.length>0){
+      let bookedTitle=document.createElement('div');
+      bookedTitle.style.fontWeight='700';
+      bookedTitle.style.color='#0f172a';
+      bookedTitle.style.fontSize='0.75rem';
+      bookedTitle.style.marginBottom='8px';
+      bookedTitle.style.marginTop='4px';
+      bookedTitle.innerHTML='🛏️ Booked Guests';
+      body.appendChild(bookedTitle);
+      
+      guests.forEach(g=>{
+        let card=document.createElement('div');
+        card.style.display='flex';
+        card.style.alignItems='center';
+        card.style.gap='10px';
+        card.style.background='#f8fafc';
+        card.style.borderRadius='12px';
+        card.style.padding='8px 10px';
+        card.style.marginBottom='8px';
+        card.style.border='1px solid #eef2f6';
+        card.innerHTML=`
+          <div style="width:44px;height:44px;background-image:url('${escapeHtml(g.image)}');background-size:cover;background-position:center;border-radius:8px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.08);"></div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:5px;margin-bottom:2px;">
+              <span style="font-weight:700;color:#0f172a;font-size:0.75rem;">${escapeHtml(g.guestName)}</span>
+              <span style="font-size:0.6rem;color:#64748b;font-weight:500;background:#eef2ff;padding:2px 6px;border-radius:8px;">#${escapeHtml(g.roomNumber)}</span>
+            </div>
+            <div style="font-size:0.6rem;color:#64748b;margin-bottom:2px;">📅 ${g.checkin} → ${g.checkout}</div>
+            <div style="font-size:0.55rem;color:#64748b;">📌 ${escapeHtml(g.bookedBy)}</div>
+          </div>
+        `;
+        body.appendChild(card);
+      });
+    }
+    
+    if(availableRooms.length>0){
+      let availTitle=document.createElement('div');
+      availTitle.style.fontWeight='700';
+      availTitle.style.fontSize='0.75rem';
+      availTitle.style.marginTop=guests.length>0?'12px':'4px';
+      availTitle.style.marginBottom='8px';
+      
+      if(isPast){
+        availTitle.style.color='#991b1b';
+        availTitle.innerHTML='❌ No Booking (Unoccupied Rooms)';
+        body.appendChild(availTitle);
+        availableRooms.forEach(room=>{
+          let noBookCard=document.createElement('div');
+          noBookCard.style.background='#fee2e2';
+          noBookCard.style.border='1px solid #fecaca';
+          noBookCard.style.borderRadius='12px';
+          noBookCard.style.padding='8px 12px';
+          noBookCard.style.marginBottom='8px';
+          noBookCard.style.display='flex';
+          noBookCard.style.alignItems='center';
+          noBookCard.style.justifyContent='space-between';
+          noBookCard.innerHTML=`
+            <span style="font-weight:700;color:#991b1b;font-size:0.7rem;">🏠 Room ${escapeHtml(room)}</span>
+            <span style="background:#991b1b;color:white;padding:2px 8px;border-radius:8px;font-size:0.55rem;font-weight:500;">No Booking</span>
+          `;
+          body.appendChild(noBookCard);
+        });
+      } else {
+        availTitle.style.color='#166534';
+        availTitle.innerHTML='✅ Available Rooms';
+        body.appendChild(availTitle);
+        availableRooms.forEach(room=>{
+          let availCard=document.createElement('div');
+          availCard.style.background='#dcfce7';
+          availCard.style.border='1px solid #bbf7d0';
+          availCard.style.borderRadius='12px';
+          availCard.style.padding='8px 12px';
+          availCard.style.marginBottom='8px';
+          availCard.style.display='flex';
+          availCard.style.alignItems='center';
+          availCard.style.justifyContent='space-between';
+          availCard.innerHTML=`
+            <span style="font-weight:700;color:#166534;font-size:0.7rem;">🏠 Room ${escapeHtml(room)}</span>
+            <span style="background:#166534;color:white;padding:2px 8px;border-radius:8px;font-size:0.55rem;font-weight:500;">Available</span>
+          `;
+          body.appendChild(availCard);
+        });
+      }
+    }
+    
+    if(guests.length===0 && availableRooms.length===TOTAL_ROOMS){
+      if(isPast){
+        body.innerHTML='<div style="text-align:center;padding:30px;color:#991b1b;font-size:0.7rem;">🏠 All rooms were available<br>No bookings on this day</div>';
+      } else {
+        body.innerHTML='<div style="text-align:center;padding:30px;color:#166534;font-size:0.7rem;">✨ No bookings on this day<br>All rooms available</div>';
+      }
+    }
+    
+    modal.style.visibility='visible';
+    modal.style.opacity='1';
+  }
+  
+  document.getElementById('calPrevBtn').onclick=()=>{ currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; } renderCalendar(); };
+  document.getElementById('calNextBtn').onclick=()=>{ currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; } renderCalendar(); };
+  document.getElementById('calTodayBtn').onclick=()=>{ 
+    let n=new Date(); 
+    currentYear=n.getFullYear(); 
+    currentMonth=n.getMonth(); 
+    renderCalendar(); 
+    showToast("📍 Today");
+  };
+  document.getElementById('calCloseModalBtn').onclick=()=>{ let m=document.getElementById('calModalOverlay'); m.style.visibility='hidden'; m.style.opacity='0'; };
+  document.getElementById('calModalOverlay').onclick=(e)=>{ if(e.target===document.getElementById('calModalOverlay')){ let m=document.getElementById('calModalOverlay'); m.style.visibility='hidden'; m.style.opacity='0'; } };
+  renderCalendar();
+})();
+</script>

@@ -1,0 +1,326 @@
+<div style="margin:0; padding:0; width:100%; background:white;">
+  <div id="contactToast" style="position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:#0f172a; color:white; padding:8px 16px; border-radius:40px; font-size:0.75rem; z-index:9999; transition:0.2s; pointer-events:none;"></div>
+
+  <!-- Phone -->
+  <div style="padding:16px 0; border-bottom:1px solid #eef2f6;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0;">
+      <span style="font-size:0.9rem; font-weight:600;">📞 Phone Numbers</span>
+      <button class="add-btn" data-type="phone" style="background:transparent; border:1px solid #e2e8f0; width:28px; height:28px; border-radius:8px; cursor:pointer;">+</button>
+    </div>
+    <div id="phoneList" style="padding:0;"></div>
+  </div>
+
+  <!-- WhatsApp -->
+  <div style="padding:16px 0; border-bottom:1px solid #eef2f6;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0;">
+      <span style="font-size:0.9rem; font-weight:600;">💬 WhatsApp Numbers</span>
+      <button class="add-btn" data-type="whatsapp" style="background:transparent; border:1px solid #e2e8f0; width:28px; height:28px; border-radius:8px; cursor:pointer;">+</button>
+    </div>
+    <div id="whatsappList" style="padding:0;"></div>
+  </div>
+
+  <!-- Email -->
+  <div style="padding:16px 0; border-bottom:1px solid #eef2f6;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0;">
+      <span style="font-size:0.9rem; font-weight:600;">✉️ Email Addresses</span>
+      <button class="add-btn" data-type="email" style="background:transparent; border:1px solid #e2e8f0; width:28px; height:28px; border-radius:8px; cursor:pointer;">+</button>
+    </div>
+    <div id="emailList" style="padding:0;"></div>
+  </div>
+
+  <!-- Social Media -->
+  <div style="padding:16px 0; border-bottom:1px solid #eef2f6;">
+    <div style="font-size:0.9rem; font-weight:600; margin-bottom:16px; padding:0;">🌐 Social Media</div>
+    
+    <div style="margin-bottom:16px; padding:0;">
+      <div style="font-size:0.75rem; color:#475569; margin-bottom:6px;">Facebook</div>
+      <div id="facebookRow" style="display:flex; gap:8px; align-items:center;">
+        <span id="fbVal" style="flex:1; padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem;">-</span>
+        <button class="edit-social" data-field="facebook" style="background:transparent; border:1px solid #e2e8f0; width:36px; height:36px; border-radius:8px; cursor:pointer;">✏️</button>
+      </div>
+      <div id="fbEdit" style="display:none; margin-top:8px;">
+        <input id="fbInput" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem;">
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="save-social" data-field="facebook" style="flex:1; padding:8px; background:#0f172a; color:white; border:none; border-radius:6px; cursor:pointer;">Save</button>
+          <button class="cancel-social" data-field="facebook" style="flex:1; padding:8px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer;">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px; padding:0;">
+      <div style="font-size:0.75rem; color:#475569; margin-bottom:6px;">Instagram</div>
+      <div id="instagramRow" style="display:flex; gap:8px; align-items:center;">
+        <span id="igVal" style="flex:1; padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem;">-</span>
+        <button class="edit-social" data-field="instagram" style="background:transparent; border:1px solid #e2e8f0; width:36px; height:36px; border-radius:8px; cursor:pointer;">✏️</button>
+      </div>
+      <div id="igEdit" style="display:none; margin-top:8px;">
+        <input id="igInput" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem;">
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="save-social" data-field="instagram" style="flex:1; padding:8px; background:#0f172a; color:white; border:none; border-radius:6px; cursor:pointer;">Save</button>
+          <button class="cancel-social" data-field="instagram" style="flex:1; padding:8px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer;">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px; padding:0;">
+      <div style="font-size:0.75rem; color:#475569; margin-bottom:6px;">Twitter/X</div>
+      <div id="twitterRow" style="display:flex; gap:8px; align-items:center;">
+        <span id="twVal" style="flex:1; padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem;">-</span>
+        <button class="edit-social" data-field="twitter" style="background:transparent; border:1px solid #e2e8f0; width:36px; height:36px; border-radius:8px; cursor:pointer;">✏️</button>
+      </div>
+      <div id="twEdit" style="display:none; margin-top:8px;">
+        <input id="twInput" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem;">
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="save-social" data-field="twitter" style="flex:1; padding:8px; background:#0f172a; color:white; border:none; border-radius:6px; cursor:pointer;">Save</button>
+          <button class="cancel-social" data-field="twitter" style="flex:1; padding:8px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer;">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:0;">
+      <div style="font-size:0.75rem; color:#475569; margin-bottom:6px;">YouTube URL</div>
+      <div id="youtubeRow" style="display:flex; gap:8px; align-items:center;">
+        <span id="ytVal" style="flex:1; padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem;">-</span>
+        <button class="edit-social" data-field="youtube" style="background:transparent; border:1px solid #e2e8f0; width:36px; height:36px; border-radius:8px; cursor:pointer;">✏️</button>
+      </div>
+      <div id="ytEdit" style="display:none; margin-top:8px;">
+        <input id="ytInput" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem;">
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="save-social" data-field="youtube" style="flex:1; padding:8px; background:#0f172a; color:white; border:none; border-radius:6px; cursor:pointer;">Save</button>
+          <button class="cancel-social" data-field="youtube" style="flex:1; padding:8px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer;">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Map -->
+  <div style="padding:16px 0;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0;">
+      <span style="font-size:0.9rem; font-weight:600;">🗺️ Google Map</span>
+      <button id="editMapBtn" style="background:transparent; border:1px solid #e2e8f0; width:36px; height:36px; border-radius:8px; cursor:pointer;">✏️</button>
+    </div>
+    <div id="mapVal" style="padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:0.75rem; color:#64748b;">-</div>
+    <div id="mapEditArea" style="display:none; margin-top:8px;">
+      <textarea id="mapInput" rows="3" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.8rem;"></textarea>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button id="mapSave" style="flex:1; padding:8px; background:#0f172a; color:white; border:none; border-radius:6px; cursor:pointer;">Save</button>
+        <button id="mapCancel" style="flex:1; padding:8px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  *{margin:0; padding:0; box-sizing:border-box; scrollbar-width:none;}
+  *::-webkit-scrollbar{display:none;}
+  body, html{margin:0; padding:0;}
+  
+  .list-item{display:flex; gap:10px; align-items:center; margin-bottom:12px; padding:0;}
+  .list-item:last-child{margin-bottom:0;}
+  .item-value{flex:1; padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem;}
+  .primary-badge{font-size:0.65rem; color:#059669; margin-left:8px;}
+</style>
+
+<!-- Confirm Modal -->
+<div id="confirmModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:100000; align-items:center; justify-content:center;">
+  <div style="background:white; width:85%; max-width:280px; border-radius:12px; overflow:hidden;">
+    <div style="background:#0f172a; padding:14px; color:white; font-weight:600; font-size:0.9rem; text-align:center;">Confirm</div>
+    <div style="padding:20px; text-align:center;"><p id="confirmMsg" style="margin:0; font-size:0.9rem;">Are you sure?</p></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; border-top:1px solid #eef2f6;">
+      <button id="confirmNo" style="padding:12px; border:none; background:#f8fafc; color:#475569; border-right:1px solid #eef2f6; cursor:pointer;">Cancel</button>
+      <button id="confirmYes" style="padding:12px; border:none; background:#f8fafc; color:#dc2626; cursor:pointer;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'contact_mgr';
+  const defaultData = {
+    phones: ['+91 9876543210'],
+    whatsapps: ['+91 9876543210'],
+    emails: ['info@example.com'],
+    facebook: '', instagram: '', twitter: '', youtube: '', mapEmbed: ''
+  };
+  
+  let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(defaultData));
+  let activeEdit = null;
+  let pendingNew = null;
+  
+  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  
+  function toast(msg, isErr){ 
+    let t = document.getElementById('contactToast');
+    t.textContent = msg;
+    t.style.background = isErr ? '#b91c1c' : '#0f172a';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => t.style.transform = 'translateX(-50%) translateY(-100px)', 2000);
+  }
+  
+  function confirm(msg, onYes){
+    let modal = document.getElementById('confirmModal');
+    document.getElementById('confirmMsg').textContent = msg;
+    modal.style.display = 'flex';
+    let yes = document.getElementById('confirmYes'), no = document.getElementById('confirmNo');
+    let handler = () => { modal.style.display = 'none'; yes.removeEventListener('click', yh); no.removeEventListener('click', nh); };
+    let yh = () => { handler(); onYes(); };
+    let nh = () => { handler(); };
+    yes.addEventListener('click', yh);
+    no.addEventListener('click', nh);
+  }
+  
+  function closeActive(cancelEmpty){
+    if(activeEdit && cancelEmpty && pendingNew && pendingNew.type === activeEdit.type && pendingNew.index === activeEdit.index){
+      let arr = data[activeEdit.type + 's'];
+      if(arr && arr[activeEdit.index] === ''){ arr.splice(activeEdit.index, 1); save(); }
+    }
+    activeEdit = null; pendingNew = null;
+    renderAll();
+  }
+  
+  function startEdit(type, idx){
+    if(activeEdit){ closeActive(true); setTimeout(() => _start(type, idx), 80); }
+    else _start(type, idx);
+  }
+  
+  function _start(type, idx){
+    activeEdit = { type, index: idx };
+    renderAll();
+    setTimeout(() => {
+      let inp = document.getElementById(`edit-${type}-${idx}`);
+      if(inp) inp.focus();
+    }, 50);
+  }
+  
+  function renderList(containerId, type){
+    let container = document.getElementById(containerId);
+    if(!container) return;
+    let items = data[type + 's'] || [];
+    container.innerHTML = '';
+    items.forEach((val, idx) => {
+      let isPrimary = idx === 0;
+      let isEditing = (activeEdit && activeEdit.type === type && activeEdit.index === idx);
+      let div = document.createElement('div');
+      div.className = 'list-item';
+      if(isEditing){
+        div.innerHTML = `<input id="edit-${type}-${idx}" class="item-value" value="${escapeHtml(val)}" placeholder="${type === 'email' ? 'email@example.com' : '+91 9876543210'}" autofocus>
+          <button class="save-edit" data-type="${type}" data-idx="${idx}" style="padding:8px 14px; background:#0f172a; color:white; border:none; border-radius:6px; cursor:pointer;">Save</button>
+          <button class="cancel-edit" data-type="${type}" data-idx="${idx}" style="padding:8px 14px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer;">Cancel</button>`;
+      } else if(isPrimary){
+        div.innerHTML = `<span class="item-value">${escapeHtml(val)}<span class="primary-badge">(Primary)</span></span>`;
+      } else {
+        div.innerHTML = `<span class="item-value">${escapeHtml(val)}</span>
+          <button class="edit-item" data-type="${type}" data-idx="${idx}" style="background:transparent; border:1px solid #e2e8f0; width:36px; height:36px; border-radius:6px; cursor:pointer;">✏️</button>
+          <button class="delete-item" data-type="${type}" data-idx="${idx}" style="background:transparent; border:1px solid #e2e8f0; width:36px; height:36px; border-radius:6px; cursor:pointer; color:#dc2626;">🗑️</button>`;
+      }
+      container.appendChild(div);
+    });
+    
+    document.querySelectorAll('.edit-item').forEach(btn => {
+      btn.onclick = () => startEdit(btn.dataset.type, parseInt(btn.dataset.idx));
+    });
+    document.querySelectorAll('.delete-item').forEach(btn => {
+      btn.onclick = () => {
+        let t = btn.dataset.type, idx = parseInt(btn.dataset.idx);
+        if(idx === 0){ toast('Cannot delete primary', true); return; }
+        if(activeEdit){ confirm('Unsaved changes. Close first?', () => { closeActive(true); setTimeout(() => { if(data[t+'s'][idx]){ data[t+'s'].splice(idx,1); save(); renderAll(); toast('Deleted'); } }, 100); }); }
+        else { confirm(`Delete ${data[t+'s'][idx]}?`, () => { data[t+'s'].splice(idx,1); save(); renderAll(); toast('Deleted'); }); }
+      };
+    });
+    document.querySelectorAll('.save-edit').forEach(btn => {
+      btn.onclick = () => {
+        let t = btn.dataset.type, idx = parseInt(btn.dataset.idx);
+        let inp = document.getElementById(`edit-${t}-${idx}`);
+        let newVal = inp.value.trim();
+        if(newVal){ data[t+'s'][idx] = newVal; save(); activeEdit = null; pendingNew = null; renderAll(); toast(`${t} updated`); }
+        else { confirm('Empty value. Remove entry?', () => { if(idx !== 0){ data[t+'s'].splice(idx,1); save(); activeEdit=null; pendingNew=null; renderAll(); toast('Removed'); } else toast('Cannot remove primary', true); }); }
+      };
+    });
+    document.querySelectorAll('.cancel-edit').forEach(btn => {
+      btn.onclick = () => { if(data[btn.dataset.type+'s'][parseInt(btn.dataset.idx)] === ''){ data[btn.dataset.type+'s'].splice(parseInt(btn.dataset.idx),1); save(); } activeEdit=null; pendingNew=null; renderAll(); };
+    });
+  }
+  
+  function addNew(type){
+    if(activeEdit){ confirm('Unsaved changes. Close first?', () => { closeActive(true); setTimeout(() => { data[type+'s'].push(''); save(); renderAll(); let newIdx = data[type+'s'].length-1; pendingNew = { type, index: newIdx }; startEdit(type, newIdx); }, 100); }); }
+    else { data[type+'s'].push(''); save(); renderAll(); let newIdx = data[type+'s'].length-1; pendingNew = { type, index: newIdx }; startEdit(type, newIdx); }
+  }
+  
+  function renderAll(){
+    renderList('phoneList', 'phone');
+    renderList('whatsappList', 'whatsapp');
+    renderList('emailList', 'email');
+    ['facebook','instagram','twitter','youtube'].forEach(f => {
+      let valSpan = document.getElementById(f === 'facebook' ? 'fbVal' : f === 'instagram' ? 'igVal' : f === 'twitter' ? 'twVal' : 'ytVal');
+      if(valSpan) valSpan.textContent = data[f] || '-';
+    });
+    let mapSpan = document.getElementById('mapVal');
+    if(mapSpan) mapSpan.textContent = data.mapEmbed ? '✓ Embed saved' : '-';
+  }
+  
+  function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+  
+  document.querySelectorAll('.add-btn').forEach(btn => {
+    btn.onclick = () => addNew(btn.dataset.type);
+  });
+  
+  document.querySelectorAll('.edit-social').forEach(btn => {
+    btn.onclick = () => {
+      let f = btn.dataset.field;
+      let row = document.getElementById(f + 'Row');
+      let editDiv = document.getElementById(f + 'Edit');
+      let input = document.getElementById(f + 'Input');
+      if(row) row.style.display = 'none';
+      if(editDiv) editDiv.style.display = 'block';
+      if(input) input.value = data[f] || '';
+    };
+  });
+  document.querySelectorAll('.save-social').forEach(btn => {
+    btn.onclick = () => {
+      let f = btn.dataset.field;
+      let input = document.getElementById(f + 'Input');
+      let newVal = input.value.trim();
+      data[f] = newVal;
+      save();
+      let row = document.getElementById(f + 'Row');
+      let editDiv = document.getElementById(f + 'Edit');
+      let valSpan = document.getElementById(f === 'facebook' ? 'fbVal' : f === 'instagram' ? 'igVal' : f === 'twitter' ? 'twVal' : 'ytVal');
+      if(valSpan) valSpan.textContent = newVal || '-';
+      if(row) row.style.display = 'flex';
+      if(editDiv) editDiv.style.display = 'none';
+      toast(`${f} updated`);
+    };
+  });
+  document.querySelectorAll('.cancel-social').forEach(btn => {
+    btn.onclick = () => {
+      let f = btn.dataset.field;
+      let row = document.getElementById(f + 'Row');
+      let editDiv = document.getElementById(f + 'Edit');
+      if(row) row.style.display = 'flex';
+      if(editDiv) editDiv.style.display = 'none';
+    };
+  });
+  
+  document.getElementById('editMapBtn').onclick = () => {
+    document.getElementById('mapVal').style.display = 'none';
+    document.getElementById('mapEditArea').style.display = 'block';
+    document.getElementById('mapInput').value = data.mapEmbed || '';
+  };
+  document.getElementById('mapSave').onclick = () => {
+    data.mapEmbed = document.getElementById('mapInput').value;
+    save();
+    document.getElementById('mapVal').textContent = data.mapEmbed ? '✓ Embed saved' : '-';
+    document.getElementById('mapVal').style.display = 'block';
+    document.getElementById('mapEditArea').style.display = 'none';
+    toast('Map saved');
+  };
+  document.getElementById('mapCancel').onclick = () => {
+    document.getElementById('mapVal').style.display = 'block';
+    document.getElementById('mapEditArea').style.display = 'none';
+  };
+  
+  document.getElementById('confirmModal').onclick = (e) => { if(e.target === document.getElementById('confirmModal')) document.getElementById('confirmModal').style.display = 'none'; };
+  
+  renderAll();
+})();
+</script>

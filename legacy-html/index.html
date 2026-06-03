@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Vendors Dashboard | Sticky Header & Footer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f4f6fa;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app {
+      width: 100%;
+      height: 100vh;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ========= STICKY HEADER - NO BORDER LINE ========= */
+    .top {
+      padding: 6px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+      flex-shrink: 0;
+      padding-top: max(6px, env(safe-area-inset-top));
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      /* NO BORDER - removed border-bottom */
+    }
+    
+    html {
+      background: #ffffff;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: opacity 0.1s ease;
+    }
+    .logo:active {
+      opacity: 0.7;
+    }
+    .logo img {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 50%;
+      background: #f8fafc;
+    }
+    
+    .logo-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #1e293b;
+      pointer-events: none;
+      letter-spacing: -0.2px;
+    }
+
+    .right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .plus {
+      width: 32px;
+      height: 32px;
+      background: #f0f2f5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      font-size: 1.4rem;
+      color: #3c4b64;
+      transition: background 0.1s;
+    }
+    .plus:active {
+      background: #e4e7ed;
+    }
+    
+    .notif {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      transition: background 0.1s;
+    }
+    .notif:active {
+      background: #f0f2f5;
+    }
+    .notif svg {
+      width: 20px;
+      height: 20px;
+      stroke: #5f6c84;
+      stroke-width: 1.7;
+      fill: none;
+    }
+    
+    .profile {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1px solid #e9edf2;
+      cursor: pointer;
+      background: #f8fafc;
+      flex-shrink: 0;
+      transition: opacity 0.1s;
+    }
+    .profile:active {
+      opacity: 0.7;
+    }
+    .profile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      display: block;
+    }
+
+    /* ========= SCROLLABLE CONTENT AREA ========= */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 18px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      scroll-behavior: smooth;
+    }
+
+    .content-area::-webkit-scrollbar {
+      width: 4px;
+    }
+    .content-area::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    .content-area::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    /* ========= MENU STYLES ========= */
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .menu-item {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #f0f2f5;
+      font-size: 1rem;
+      color: #1e293b;
+      cursor: pointer;
+      transition: background 0.1s, transform 0.05s;
+    }
+    .menu-item:active {
+      background: #f8fafc;
+      transform: scale(0.99);
+    }
+    
+    .button-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .action-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: 1px solid #f0f2f5;
+      background: white;
+      transition: background 0.1s;
+    }
+    .action-btn:active {
+      background: #f8fafc;
+    }
+    .action-btn.support {
+      color: #1e293b;
+    }
+    .action-btn.logout {
+      color: #dc2626;
+      border-color: #fee2e2;
+    }
+    
+    .notif-item {
+      padding: 14px;
+      border-radius: 12px;
+      background: #fefefe;
+      border: 1px solid #f0f2f5;
+      border-left: 3px solid #cbd5e1;
+      margin-bottom: 8px;
+    }
+    .notif-time {
+      font-size: 0.7rem;
+      color: #8b9ab0;
+      margin-top: 6px;
+    }
+
+    /* ========= STICKY FOOTER - EXTREMELY MINIMAL HEIGHT (LIKE ORIGINAL) ========= */
+    .bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 8px 4px;
+      background: white;
+      flex-shrink: 0;
+      border-top: 1px solid #f0f2f5;
+      min-height: 46px;
+      position: sticky;
+      bottom: 0;
+      z-index: 100;
+      padding-bottom: max(4px, env(safe-area-inset-bottom));
+    }
+    
+    .nav {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 0;
+      min-width: 38px;
+      border-radius: 8px;
+      transition: background 0.1s, transform 0.05s;
+    }
+    .nav:active {
+      background: #f0f2f5;
+      transform: scale(0.96);
+    }
+    .nav svg {
+      width: 16px;
+      height: 16px;
+      stroke: #6c7a91;
+      stroke-width: 1.6;
+      fill: none;
+    }
+    .nav span {
+      font-size: 0.5rem;
+      color: #6c7a91;
+      font-weight: 450;
+      letter-spacing: -0.2px;
+    }
+
+    @media (max-width: 480px) {
+      .top {
+        padding: 4px 14px;
+      }
+      .content-area {
+        padding: 14px;
+      }
+      .bottom {
+        padding: 2px 6px 4px;
+        min-height: 44px;
+      }
+      .nav {
+        min-width: 36px;
+      }
+      .nav svg {
+        width: 15px;
+        height: 15px;
+      }
+      .nav span {
+        font-size: 0.48rem;
+      }
+    }
+
+    .fade-in {
+      animation: fade 0.2s ease;
+    }
+    @keyframes fade {
+      from { opacity: 0.5; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- STICKY HEADER - NO LINE/BORDER BELOW -->
+  <div class="top">
+    <div class="logo" id="logoBtn">
+      <img src="https://ghungroowale.com/logo.png" alt="logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 fill=%22%23eef2ff%22/%3E%3Ctext x=%225%22 y=%2222%22 font-size=%2216%22 fill=%22%233b4b6e%22%3EL%3C/text%3E%3C/svg%3E'">
+      <span class="logo-text" id="logoText">Dashboard</span>
+    </div>
+    <div class="right">
+      <button class="plus" id="plusBtn" aria-label="Add Menu">+</button>
+      <button class="notif" id="notifBtn" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" stroke="currentColor">
+          <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" />
+          <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" />
+        </svg>
+      </button>
+      <div class="profile" id="profileBtn" aria-label="Profile">
+        <img src="https://ghungroowale.com/logo.png" alt="profile" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23eef2ff%22/%3E%3Ctext x=%229%22 y=%2222%22 fill=%22%233b4b6e%22 font-size=%2214%22%3EP%3C/text%3E%3C/svg%3E'">
+      </div>
+    </div>
+  </div>
+
+  <!-- SCROLLABLE CONTENT -->
+  <div id="contentArea" class="content-area"></div>
+
+  <!-- STICKY FOOTER - MINIMAL HEIGHT, SAME AS ORIGINAL (46px) -->
+  <div class="bottom">
+    <button class="nav" data-file="home.html" data-title="Home">
+      <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3L21 9.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9.5Z"/><path d="M9 21v-7h6v7"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav" data-file="guest.html" data-title="Guest">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M5 20v-1a7 7 0 0 1 14 0v1"/></svg>
+      <span>Guest</span>
+    </button>
+    <button class="nav" data-file="rooms.html" data-title="Room">
+      <svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="1"/><path d="M8 12h8"/><path d="M18 8V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v2"/><circle cx="8" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
+      <span>Room</span>
+    </button>
+    <button class="nav" data-file="calendar.html" data-title="Calendar">
+      <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="2"/><path d="M8 3v3"/><path d="M16 3v3"/><path d="M3 10h18"/><circle cx="12" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="14" r="1" fill="currentColor" stroke="none"/></svg>
+      <span>Calendar</span>
+    </button>
+    <button class="nav" data-file="food.html" data-title="Food">
+      <svg viewBox="0 0 24 24"><path d="M18 2v6a2 2 0 0 0 2 2"/><path d="M6 2v6a2 2 0 0 1-2 2"/><path d="M12 2v6c0 2 2 3 2 5v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4c0-2 2-3 2-5V2"/></svg>
+      <span>Food</span>
+    </button>
+    <button class="nav" id="dashboardNavBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span>Dashboard</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const contentArea = document.getElementById('contentArea');
+    const logoText = document.getElementById('logoText');
+    const ERROR_IMAGE_URL = 'https://images.pexels.com/photos/26509771/pexels-photo-26509771.jpeg';
+    let currentFile = '';
+    
+    function changeLogoText(newText) {
+      let cleanText = newText ? newText.replace(/[^\w\s]/g, '').trim() : 'Dashboard';
+      if (cleanText.length === 0) cleanText = 'Dashboard';
+      cleanText = cleanText.split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      ).join(' ');
+      logoText.textContent = cleanText || 'Dashboard';
+    }
+
+    function showErrorImage() {
+      contentArea.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:center; height:100%; min-height:200px;">
+          <img src="${ERROR_IMAGE_URL}" alt="Page not found" style="width:100%; border-radius:16px; object-fit:cover; max-width:400px;">
+        </div>
+      `;
+    }
+
+    function loadPage(filePath, displayName) {
+      if (!filePath) {
+        showErrorImage();
+        return;
+      }
+      
+      contentArea.style.opacity = '0.6';
+      fetch(`pages/${filePath}`)
+        .then(response => {
+          if (!response.ok) throw new Error('Page not found');
+          return response.text();
+        })
+        .then(html => {
+          contentArea.innerHTML = html;
+          contentArea.style.opacity = '1';
+          if (displayName) changeLogoText(displayName);
+          currentFile = filePath;
+          
+          const scripts = contentArea.querySelectorAll('script');
+          scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            if (oldScript.src) {
+              newScript.src = oldScript.src;
+            } else {
+              newScript.textContent = oldScript.textContent;
+            }
+            document.body.appendChild(newScript);
+            document.body.removeChild(newScript);
+          });
+          
+          if (contentArea.scrollTo) contentArea.scrollTo({ top: 0, behavior: 'smooth' });
+        })
+        .catch(() => {
+          contentArea.style.opacity = '1';
+          currentFile = '';
+          showErrorImage();
+        });
+    }
+
+    function refreshToMainDashboard() {
+      currentFile = '';
+      changeLogoText('Dashboard');
+      loadPage('main.html', 'Home');
+    }
+
+    function showLogoMenu() {
+      currentFile = '';
+      changeLogoText('Dashboard');
+      contentArea.innerHTML = `
+        <div class="menu-list">
+          <div class="menu-item" data-file="staff.html" data-title="Staff">Staff</div>
+          <div class="menu-item" data-file="contact.html" data-title="Contact">Contact</div>
+          <div class="menu-item" data-file="hotels-rule.html" data-title="Hotels Rule">Hotels Rule</div>
+          <div class="menu-item" data-file="privacy-policy.html" data-title="Privacy Policy">Privacy Policy</div>
+          <div class="menu-item" data-file="cancellation-policy.html" data-title="Cancellation Policy">Cancellation Policy</div>
+        </div>
+      `;
+      attachDynamicMenuListeners();
+    }
+
+    function showAddMenu() {
+      currentFile = '';
+      contentArea.innerHTML = `
+        <div class="menu-list">
+          <div class="menu-item" data-file="newroom.html" data-title="New Room">New room</div>
+          <div class="menu-item" data-file="newstaff.html" data-title="New Staff">New staff</div>
+          <div class="menu-item" data-file="newfood.html" data-title="New Food">New food</div>
+          <div class="menu-item" data-file="newnearby.html" data-title="New Nearby">New nearby</div>
+          <div class="menu-item" data-file="newamenities.html" data-title="Amenities">Amenities</div>
+          <div class="menu-item" data-file="newimages.html" data-title="Images">Images</div>
+        </div>
+      `;
+      attachDynamicMenuListeners();
+    }
+
+    function showNotifications() {
+      currentFile = '';
+      changeLogoText('Notifications');
+      contentArea.innerHTML = `
+        <div class="notif-item">Room no. 102 booked <div class="notif-time">just now</div></div>
+        <div class="notif-item">New staff added <div class="notif-time">2 hours ago</div></div>
+        <div class="notif-item">Room 302 approved <div class="notif-time">yesterday</div></div>
+        <div class="notif-item">Breakfast menu updated <div class="notif-time">3 hours ago</div></div>
+      `;
+    }
+    
+    function showProfileMenu() {
+      currentFile = '';
+      changeLogoText('My Profile');
+      contentArea.innerHTML = `
+        <div class="menu-list">
+          <div class="menu-item" data-file="edit-profile.html" data-title="Edit Profile">Edit Profile</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="button-row">
+          <button class="action-btn support" id="supportBtn">Support</button>
+          <button class="action-btn logout" id="logoutBtn">Logout</button>
+        </div>
+      `;
+      
+      attachDynamicMenuListeners();
+      
+      const supportBtn = document.getElementById('supportBtn');
+      if (supportBtn) {
+        supportBtn.onclick = () => {
+          loadPage('support.html', 'Support');
+        };
+      }
+      
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.onclick = () => {
+          contentArea.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:16px; text-align:center;">
+              <div style="font-size:3rem;">👋</div>
+              <div style="font-size:1rem; color:#1e293b;">Logged out successfully</div>
+              <button id="reloginBtn" style="margin-top:12px; padding:10px 24px; background:#1e293b; color:white; border:none; border-radius:28px; cursor:pointer; font-weight:500;">Login again</button>
+            </div>
+          `;
+          changeLogoText('Dashboard');
+          currentFile = '';
+          const relogin = document.getElementById('reloginBtn');
+          if (relogin) {
+            relogin.onclick = () => {
+              contentArea.innerHTML = '';
+              changeLogoText('Dashboard');
+              currentFile = '';
+              refreshToMainDashboard();
+            };
+          }
+        };
+      }
+    }
+
+    function attachDynamicMenuListeners() {
+      document.querySelectorAll('#contentArea .menu-item').forEach(item => {
+        const file = item.getAttribute('data-file');
+        const title = item.getAttribute('data-title');
+        item.onclick = null;
+        item.onclick = (e) => {
+          e.stopPropagation();
+          if (file && title) {
+            loadPage(file, title);
+          }
+        };
+      });
+    }
+
+    function handleFooterClick(file, title) {
+      if (!file || !title) return;
+      currentFile = '';
+      loadPage(file, title);
+    }
+
+    function initFooterListeners() {
+      const footerBtns = document.querySelectorAll('.nav[data-file]');
+      footerBtns.forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const file = btn.getAttribute('data-file');
+          const title = btn.getAttribute('data-title');
+          if (file && title) {
+            handleFooterClick(file, title);
+          }
+        };
+      });
+      
+      const dashboardBtn = document.getElementById('dashboardNavBtn');
+      if (dashboardBtn) {
+        dashboardBtn.onclick = (e) => {
+          e.stopPropagation();
+          refreshToMainDashboard();
+        };
+      }
+    }
+    
+    document.getElementById('logoBtn').onclick = showLogoMenu;
+    document.getElementById('plusBtn').onclick = showAddMenu;
+    document.getElementById('notifBtn').onclick = showNotifications;
+    document.getElementById('profileBtn').onclick = showProfileMenu;
+    
+    initFooterListeners();
+    
+    loadPage('main.html', 'Home');
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<div style="margin:0; padding:0; max-width:100%; background:white; font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; width:100%;">
+  
+  <!-- Brand Notification Toast -->
+  <div id="brandNotification" style="position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:#0f172a; color:white; padding:10px 20px; border-radius:40px; font-size:0.8rem; font-weight:500; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:10002; transition:transform 0.2s ease; pointer-events:none; max-width:85vw; text-align:center;"></div>
+
+  <!-- Custom Confirm Modal -->
+  <div id="customConfirmModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10003; align-items:center; justify-content:center;">
+    <div style="background:#0f172a; width:85%; max-width:300px; border-radius:24px; overflow:hidden; text-align:center;">
+      <div style="padding:24px 20px 16px 20px;">
+        <p id="confirmMessage" style="color:white; font-size:1rem; margin:0 0 8px 0; font-weight:500;">Suspend staff?</p>
+      </div>
+      <div style="display:flex; border-top:1px solid #334155;">
+        <button id="confirmNoBtn" style="flex:1; background:transparent; border:none; padding:14px; color:#94a3b8; font-size:0.9rem; font-weight:500; cursor:pointer;">No</button>
+        <button id="confirmYesBtn" style="flex:1; background:transparent; border:none; border-left:1px solid #334155; padding:14px; color:#f59e0b; font-size:0.9rem; font-weight:600; cursor:pointer;">Yes</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin:0; padding:0; border-bottom:1px solid #eef2f6;">
+    <div style="display:flex; gap:0; margin:0; padding:0;">
+      <input type="text" id="staffSearchInput" placeholder="Search by name, phone or ID" style="flex:1; min-width:0; padding:12px; border:1px solid #e2e8f0; border-radius:0; font-size:0.85rem; margin:0; outline:none;">
+      <button id="searchStaffPageBtn" style="padding:12px 20px; background:#0f172a; color:white; border:none; border-radius:0; font-size:0.8rem; font-weight:600; cursor:pointer; flex-shrink:0; margin:0;">Search</button>
+    </div>
+  </div>
+
+  <div id="staffGridContainer" style="display:flex; flex-direction:column; gap:12px; margin:0; padding:12px 0 0 0;"></div>
+  <div id="noStaffResultsMsg" style="display:none; text-align:center; padding:40px; color:#94a3b8; font-size:0.85rem; margin:0;">No staff members found</div>
+</div>
+
+<!-- Edit Modal -->
+<div id="staffEditModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+  <div style="background:white; width:90%; max-width:350px; border-radius:24px; overflow:hidden; margin:20px;">
+    <div style="padding:20px; border-bottom:1px solid #eef2f6;">
+      <h3 id="editModalName" style="margin:0; font-size:1.2rem; color:#0f172a;">Edit Staff</h3>
+    </div>
+    <div style="padding:20px;">
+      <label style="display:block; margin-bottom:8px; font-size:0.75rem; font-weight:600; color:#334155;">Position / Role</label>
+      <select id="editRoleSelect" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-size:0.9rem; margin-bottom:20px;">
+        <option value="Front Desk Manager">Front Desk Manager</option>
+        <option value="Booking Agent">Booking Agent</option>
+        <option value="F&B Manager">F&B Manager</option>
+        <option value="Housekeeping Supervisor">Housekeeping Supervisor</option>
+        <option value="Security Guard">Security Guard</option>
+        <option value="Event Coordinator">Event Coordinator</option>
+        <option value="Maintenance Staff">Maintenance Staff</option>
+        <option value="Restaurant Manager">Restaurant Manager</option>
+        <option value="Accountant">Accountant</option>
+        <option value="HR Manager">HR Manager</option>
+      </select>
+      
+      <div style="display:flex; gap:12px; margin-top:20px;">
+        <button id="saveRoleBtn" style="flex:1; background:#0f172a; color:white; border:none; padding:12px; border-radius:12px; font-weight:600; cursor:pointer;">Save</button>
+        <button id="suspendStaffBtn" style="flex:1; background:#f59e0b; color:white; border:none; padding:12px; border-radius:12px; font-weight:600; cursor:pointer;">Suspend</button>
+        <button id="removeStaffBtn" style="flex:1; background:#dc2626; color:white; border:none; padding:12px; border-radius:12px; font-weight:600; cursor:pointer;">Remove</button>
+      </div>
+      <button id="closeModalBtn" style="width:100%; margin-top:12px; background:#f1f5f9; border:1px solid #e2e8f0; padding:10px; border-radius:12px; cursor:pointer; color:#64748b;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  *{margin:0; padding:0; box-sizing:border-box; scrollbar-width:none; -ms-overflow-style:none;}
+  *::-webkit-scrollbar{display:none; width:0; height:0;}
+  
+  .staff-card{background:white; border:1px solid #e2e8f0; border-radius:12px; transition:all 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.05); width:100%; margin:0;}
+  .staff-card:last-child{margin-bottom:0;}
+  .staff-card:hover{box-shadow:0 8px 20px rgba(0,0,0,0.08); transform:translateY(-2px);}
+  .staff-card-content{display:flex; gap:12px; padding:12px; width:100%; align-items:center;}
+  
+  .staff-photo{flex-shrink:0; width:130px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:16px; overflow:hidden; display:flex; align-items:center; justify-content:center;}
+  .staff-photo-img{width:100%; height:auto; display:block; object-fit:cover;}
+  
+  .staff-details{flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; gap:3px; cursor:pointer;}
+  .staff-name{font-size:1rem; font-weight:700; color:#0f172a;}
+  .staff-name:hover{text-decoration:underline; color:#075e54;}
+  .staff-position{font-size:0.7rem; color:#075e54; font-weight:500;}
+  .staff-address{font-size:0.72rem; color:#64748b;}
+  .staff-phone{font-size:0.75rem; color:#1e293b;}
+  .staff-id{font-size:0.65rem; color:#94a3b8;}
+  
+  .staff-actions{flex-shrink:0; display:flex; flex-direction:column; gap:8px; justify-content:center;}
+  .staff-action-btn{width:40px; height:40px; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; background:#0f172a; color:white;}
+  .staff-action-btn.whatsapp-btn{background:#25D366;}
+  .staff-action-btn svg{width:18px; height:18px;}
+  .staff-action-btn:hover{opacity:0.85; transform:scale(0.96);}
+  
+  @media (max-width:480px){.staff-photo{width:80px;} .staff-action-btn{width:34px; height:34px;} .staff-action-btn svg{width:16px; height:16px;} .staff-name{font-size:0.85rem;} .staff-position{font-size:0.6rem;} .staff-card-content{gap:8px; padding:10px;}}
+</style>
+
+<script>
+  (function(){
+    var staffDatabase = [
+      { id:1, name:"Rajesh Kumar", position:"Front Desk Manager", address:"Delhi", phone:"9876543210", idNumber:"123456789012", profileImage:"https://randomuser.me/api/portraits/men/32.jpg", status:"active" },
+      { id:2, name:"Priya Sharma", position:"Booking Agent", address:"Mumbai", phone:"8765432109", idNumber:"ABCDE1234F", profileImage:"https://randomuser.me/api/portraits/women/68.jpg", status:"active" },
+      { id:3, name:"Amit Verma", position:"F&B Manager", address:"Lucknow", phone:"7654321098", idNumber:"DL2024123456", profileImage:"https://randomuser.me/api/portraits/men/45.jpg", status:"active" },
+      { id:4, name:"Sneha Patel", position:"Housekeeping Supervisor", address:"Ahmedabad", phone:"6543210987", idNumber:"567890123456", profileImage:"https://randomuser.me/api/portraits/women/44.jpg", status:"active" },
+      { id:5, name:"Rahul Mehta", position:"Security Guard", address:"Gurgaon", phone:"8899776655", idNumber:"987654321098", profileImage:"https://randomuser.me/api/portraits/men/22.jpg", status:"active" },
+      { id:6, name:"Neha Gupta", position:"Event Coordinator", address:"Noida", phone:"9988776655", idNumber:"PK7890LMN12", profileImage:"https://randomuser.me/api/portraits/women/55.jpg", status:"active" },
+      { id:7, name:"Sanjay Singh", position:"Maintenance Staff", address:"Patna", phone:"9123456780", idNumber:"BIH20247890", profileImage:"https://randomuser.me/api/portraits/men/67.jpg", status:"active" },
+      { id:8, name:"Kavita Reddy", position:"Restaurant Manager", address:"Hyderabad", phone:"9988001122", idNumber:"TEL98765432", profileImage:"https://randomuser.me/api/portraits/women/89.jpg", status:"active" }
+    ];
+    
+    var currentEditId = null;
+    var pendingAction = null;
+    var pendingStaff = null;
+    var notificationTimeout = null;
+    var notificationToast = document.getElementById('brandNotification');
+    var confirmModal = document.getElementById('customConfirmModal');
+    var confirmMessage = document.getElementById('confirmMessage');
+    var staffContainer = document.getElementById('staffGridContainer');
+    var searchInput = document.getElementById('staffSearchInput');
+    var searchBtn = document.getElementById('searchStaffPageBtn');
+    var noResultsMsg = document.getElementById('noStaffResultsMsg');
+    var modal = document.getElementById('staffEditModal');
+    
+    function showNotification(msg){ 
+      if(notificationTimeout) clearTimeout(notificationTimeout); 
+      notificationToast.textContent = msg; 
+      notificationToast.style.transform = 'translateX(-50%) translateY(0)'; 
+      notificationTimeout = setTimeout(function(){ 
+        notificationToast.style.transform = 'translateX(-50%) translateY(-100px)'; 
+      },1800); 
+    }
+    
+    function showConfirm(message, onYes){
+      confirmMessage.textContent = message;
+      confirmModal.style.display = 'flex';
+      var yesBtn = document.getElementById('confirmYesBtn');
+      var noBtn = document.getElementById('confirmNoBtn');
+      var newYes = yesBtn.cloneNode(true);
+      var newNo = noBtn.cloneNode(true);
+      yesBtn.parentNode.replaceChild(newYes, yesBtn);
+      noBtn.parentNode.replaceChild(newNo, noBtn);
+      newYes.onclick = function(){
+        confirmModal.style.display = 'none';
+        onYes();
+      };
+      newNo.onclick = function(){
+        confirmModal.style.display = 'none';
+      };
+    }
+    
+    function maskIdNumber(id){ 
+      if(!id) return ''; 
+      if(id.length>=8){ 
+        var m=''; 
+        for(var i=0;i<id.length-4;i++) m+='*'; 
+        return m+id.slice(-4); 
+      } 
+      if(id.length>=4) return '****'+id.slice(-4); 
+      return '****'; 
+    }
+    
+    function escapeHtml(s){ 
+      if(!s) return ''; 
+      return String(s).replace(/[&<>]/g, function(m){ 
+        if(m==='&') return '&amp;'; 
+        if(m==='<') return '&lt;'; 
+        if(m==='>') return '&gt;'; 
+        return m; 
+      }); 
+    }
+    
+    function makeCall(p){ if(p) window.location.href = 'tel:'+p; showNotification('Calling '+p); }
+    function sendWhatsApp(p){ if(p){ var c = p.replace(/\D/g,''); window.open('https://wa.me/'+c, '_blank'); showNotification('WhatsApp '+p); } }
+    
+    function openEditModal(staffId){
+      var staff = staffDatabase.find(function(s){ return s.id === staffId; });
+      if(!staff) return;
+      currentEditId = staffId;
+      document.getElementById('editModalName').innerText = 'Edit ' + staff.name;
+      var roleSelect = document.getElementById('editRoleSelect');
+      roleSelect.value = staff.position;
+      modal.style.display = 'flex';
+    }
+    
+    function closeModal(){
+      modal.style.display = 'none';
+      currentEditId = null;
+    }
+    
+    function saveRole(){
+      if(currentEditId === null) return;
+      var staff = staffDatabase.find(function(s){ return s.id === currentEditId; });
+      if(staff){
+        var newRole = document.getElementById('editRoleSelect').value;
+        staff.position = newRole;
+        showNotification(staff.name + ' → ' + newRole);
+        renderStaff(getVisibleStaff());
+      }
+      closeModal();
+    }
+    
+    function suspendStaff(){
+      if(currentEditId === null) return;
+      var staff = staffDatabase.find(function(s){ return s.id === currentEditId; });
+      if(staff){
+        if(staff.status === 'suspended'){
+          showNotification(staff.name + ' already suspended');
+          closeModal();
+          return;
+        }
+        showConfirm('Suspend ' + staff.name + ' ?', function(){
+          staff.status = 'suspended';
+          showNotification(staff.name + ' suspended');
+          renderStaff(getVisibleStaff());
+          closeModal();
+        });
+      }
+    }
+    
+    function removeStaff(){
+      if(currentEditId === null) return;
+      var staff = staffDatabase.find(function(s){ return s.id === currentEditId; });
+      if(staff){
+        showConfirm('Remove ' + staff.name + ' ?', function(){
+          var index = staffDatabase.findIndex(function(s){ return s.id === currentEditId; });
+          if(index !== -1){
+            staffDatabase.splice(index, 1);
+            showNotification(staff.name + ' removed');
+            renderStaff(getVisibleStaff());
+          }
+          closeModal();
+        });
+      }
+    }
+    
+    function getVisibleStaff(){
+      var query = searchInput.value.trim().toLowerCase();
+      var filtered = staffDatabase.filter(function(s){ return s.status === 'active'; });
+      if(query){
+        filtered = filtered.filter(function(s){
+          return s.name.toLowerCase().indexOf(query) !== -1 || 
+                 s.phone.indexOf(query) !== -1 || 
+                 s.idNumber.toLowerCase().indexOf(query) !== -1 ||
+                 s.position.toLowerCase().indexOf(query) !== -1;
+        });
+      }
+      return filtered;
+    }
+    
+    function renderStaff(list){
+      if(!list || list.length===0){ 
+        staffContainer.style.display='none'; 
+        noResultsMsg.style.display='block'; 
+        return; 
+      }
+      staffContainer.style.display='flex'; 
+      noResultsMsg.style.display='none'; 
+      staffContainer.innerHTML='';
+      
+      for(var i=0;i<list.length;i++){
+        var s = list[i];
+        var masked = maskIdNumber(s.idNumber);
+        var card = document.createElement('div'); 
+        card.className = 'staff-card';
+        card.innerHTML = '<div class="staff-card-content">'+
+          '<div class="staff-photo"><img class="staff-photo-img" src="'+escapeHtml(s.profileImage)+'" onerror="this.src=\'https://ui-avatars.com/api/?name='+encodeURIComponent(s.name)+'&background=0f172a&color=fff&size=130&length=2&fontsize=55&rounded=false\'"></div>'+
+          '<div class="staff-details" data-id="'+s.id+'">'+
+            '<div class="staff-name">'+escapeHtml(s.name)+'</div>'+
+            '<div class="staff-position">'+escapeHtml(s.position)+'</div>'+
+            '<div class="staff-address">'+escapeHtml(s.address)+'</div>'+
+            '<div class="staff-phone">'+escapeHtml(s.phone)+'</div>'+
+            '<div class="staff-id">'+escapeHtml(masked)+'</div>'+
+          '</div>'+
+          '<div class="staff-actions">'+
+            '<button class="staff-action-btn call-btn" data-phone="'+escapeHtml(s.phone)+'">'+
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'+
+            '</button>'+
+            '<button class="staff-action-btn whatsapp-btn" data-phone="'+escapeHtml(s.phone)+'">'+
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/><line x1="9" y1="10" x2="9.01" y2="10"/><line x1="12" y1="10" x2="12.01" y2="10"/><line x1="15" y1="10" x2="15.01" y2="10"/></svg>'+
+            '</button>'+
+          '</div>'+
+        '</div>';
+        
+        var callBtn = card.querySelector('.call-btn');
+        var waBtn = card.querySelector('.whatsapp-btn');
+        var detailsDiv = card.querySelector('.staff-details');
+        
+        if(callBtn){ var p = callBtn.getAttribute('data-phone'); callBtn.onclick = function(p){ return function(){ makeCall(p); }; }(p); }
+        if(waBtn){ var wp = waBtn.getAttribute('data-phone'); waBtn.onclick = function(wp){ return function(){ sendWhatsApp(wp); }; }(wp); }
+        if(detailsDiv){ 
+          var id = parseInt(detailsDiv.getAttribute('data-id'));
+          detailsDiv.onclick = function(id){ return function(){ openEditModal(id); }; }(id);
+        }
+        
+        staffContainer.appendChild(card);
+        
+        setTimeout(function(){
+          var img = card.querySelector('.staff-photo-img');
+          var details = card.querySelector('.staff-details');
+          if(img && details && details.offsetHeight){
+            img.style.height = details.offsetHeight + 'px';
+          }
+        }, 50);
+      }
+    }
+    
+    function searchStaff(){
+      renderStaff(getVisibleStaff());
+    }
+    
+    staffDatabase.sort(function(a,b){ return b.id - a.id; });
+    searchBtn.onclick = searchStaff;
+    searchInput.onkeypress = function(e){ if(e.key==='Enter') searchStaff(); };
+    
+    document.getElementById('saveRoleBtn').onclick = saveRole;
+    document.getElementById('suspendStaffBtn').onclick = suspendStaff;
+    document.getElementById('removeStaffBtn').onclick = removeStaff;
+    document.getElementById('closeModalBtn').onclick = closeModal;
+    modal.onclick = function(e){ if(e.target === modal) closeModal(); };
+    
+    renderStaff(getVisibleStaff());
+  })();
+</script>

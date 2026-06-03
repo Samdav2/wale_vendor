@@ -1,0 +1,283 @@
+<div style="max-width: 100%; background: #ffffff; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; min-height: 100vh;">
+
+  <!-- 1. Stats Cards - Responsive: text will not wrap -->
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 0 12px 0; margin: 0;">
+    <div style="background: #f8fafc; border-radius: 14px; padding: 10px 6px; text-align: center; border: 1px solid #e2e8f0;">
+      <div style="font-size: 0.6rem; font-weight: 600; color: #64748b; white-space: nowrap;">TOTAL ROOMS</div>
+      <div style="font-size: 1.3rem; font-weight: 800; color: #0f172a;">24</div>
+    </div>
+    <div style="background: #f8fafc; border-radius: 14px; padding: 10px 6px; text-align: center; border: 1px solid #e2e8f0;">
+      <div style="font-size: 0.6rem; font-weight: 600; color: #64748b; white-space: nowrap;">BOOKED TODAY</div>
+      <div style="font-size: 1.3rem; font-weight: 800; color: #0f172a;">8</div>
+    </div>
+    <div style="background: #f8fafc; border-radius: 14px; padding: 10px 6px; text-align: center; border: 1px solid #e2e8f0;">
+      <div style="font-size: 0.6rem; font-weight: 600; color: #64748b; white-space: nowrap;">AVAILABLE</div>
+      <div style="font-size: 1.3rem; font-weight: 800; color: #166534;">16</div>
+    </div>
+    <div style="background: #f8fafc; border-radius: 14px; padding: 10px 6px; text-align: center; border: 1px solid #e2e8f0;">
+      <div style="font-size: 0.6rem; font-weight: 600; color: #64748b; white-space: nowrap;">TOTAL GUESTS</div>
+      <div style="font-size: 1.3rem; font-weight: 800; color: #0f172a;">42</div>
+    </div>
+  </div>
+
+  <!-- 2. Room Status -->
+  <div style="padding: 0 0 12px 0; margin: 0;">
+    <div style="font-size: 0.8rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">🛏️ ROOM STATUS</div>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+      <div style="border-radius: 12px; padding: 8px 6px; text-align: center; background: #dcfce7; border: 1px solid #bbf7d0;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #166534;">101</div>
+        <div style="font-size: 0.55rem; color: #166534;">Available</div>
+      </div>
+      <div style="border-radius: 12px; padding: 8px 6px; text-align: center; background: #fee2e2; border: 1px solid #fecaca;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #991b1b;">102</div>
+        <div style="font-size: 0.55rem; color: #991b1b;">Booked</div>
+      </div>
+      <div style="border-radius: 12px; padding: 8px 6px; text-align: center; background: #dcfce7; border: 1px solid #bbf7d0;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #166534;">103</div>
+        <div style="font-size: 0.55rem; color: #166534;">Available</div>
+      </div>
+      <div style="border-radius: 12px; padding: 8px 6px; text-align: center; background: #fee2e2; border: 1px solid #fecaca;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #991b1b;">104</div>
+        <div style="font-size: 0.55rem; color: #991b1b;">Booked</div>
+      </div>
+      <div style="border-radius: 12px; padding: 8px 6px; text-align: center; background: #fef3c7; border: 1px solid #fde68a;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #92400e;">201</div>
+        <div style="font-size: 0.55rem; color: #92400e;">Maint.</div>
+      </div>
+      <div style="border-radius: 12px; padding: 8px 6px; text-align: center; background: #fee2e2; border: 1px solid #fecaca;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #991b1b;">202</div>
+        <div style="font-size: 0.55rem; color: #991b1b;">Booked</div>
+      </div>
+      <div style="border-radius: 12px; padding: 8px 6px; text-align: center; background: #dcfce7; border: 1px solid #bbf7d0;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #166534;">203</div>
+        <div style="font-size: 0.55rem; color: #166534;">Available</div>
+      </div>
+      <div style="border-radius: 12px; padding: 8px 6px; text-align: center; background: #fee2e2; border: 1px solid #fecaca;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #991b1b;">204</div>
+        <div style="font-size: 0.55rem; color: #991b1b;">Booked</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Today's Check-ins -->
+  <div style="padding: 0 0 12px 0; margin: 0;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+      <div style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">📋 TODAY'S CHECK-INS</div>
+      <div style="font-size: 0.55rem; color: #64748b;">8 bookings</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="background: white; border-radius: 14px; padding: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px;">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;">
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 0.8rem;">Rajesh Kumar</div>
+          <div style="font-size: 0.6rem; color: #64748b;">Room 101 • Deluxe • 2 nights</div>
+        </div>
+        <div style="background: #dcfce7; padding: 4px 10px; border-radius: 30px; font-size: 0.6rem; font-weight: 600; color: #166534;">Check-in</div>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px;">
+        <img src="https://randomuser.me/api/portraits/women/68.jpg" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;">
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 0.8rem;">Priya Sharma</div>
+          <div style="font-size: 0.6rem; color: #64748b;">Room 201 • Suite • 3 nights</div>
+        </div>
+        <div style="background: #dcfce7; padding: 4px 10px; border-radius: 30px; font-size: 0.6rem; font-weight: 600; color: #166534;">Check-in</div>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px;">
+        <img src="https://randomuser.me/api/portraits/men/45.jpg" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;">
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 0.8rem;">Arun Verma</div>
+          <div style="font-size: 0.6rem; color: #64748b;">Room 301 • Standard • 1 night</div>
+        </div>
+        <div style="background: #dcfce7; padding: 4px 10px; border-radius: 30px; font-size: 0.6rem; font-weight: 600; color: #166534;">Check-in</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Orders/Sales/Month -->
+  <div style="padding: 0 0 12px 0; margin: 0;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+      <div style="background: #f8fafc; border-radius: 14px; padding: 10px 6px; text-align: center; border: 1px solid #e2e8f0;">
+        <div style="font-size: 0.6rem; font-weight: 600; color: #64748b;">🍽️ TODAY'S ORDERS</div>
+        <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a;">18</div>
+        <div style="font-size: 0.5rem; color: #64748b;">12 pending • 6 done</div>
+      </div>
+      <div style="background: #f8fafc; border-radius: 14px; padding: 10px 6px; text-align: center; border: 1px solid #e2e8f0;">
+        <div style="font-size: 0.6rem; font-weight: 600; color: #64748b;">💰 TODAY'S SALES</div>
+        <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a;">₹32,499</div>
+        <div style="font-size: 0.5rem; color: #64748b;">+12% vs yesterday</div>
+      </div>
+      <div style="background: #f8fafc; border-radius: 14px; padding: 10px 6px; text-align: center; border: 1px solid #e2e8f0;">
+        <div style="font-size: 0.6rem; font-weight: 600; color: #64748b;">📅 THIS MONTH</div>
+        <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a;">₹4.28L</div>
+        <div style="font-size: 0.5rem; color: #64748b;">Target: ₹5.5L</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Tomorrow's Check-outs -->
+  <div style="padding: 0 0 12px 0; margin: 0;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+      <div style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">🚪 TOMORROW'S CHECK-OUTS</div>
+      <div style="font-size: 0.55rem; color: #64748b;">5 guests</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="background: white; border-radius: 14px; padding: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px;">
+        <img src="https://randomuser.me/api/portraits/women/22.jpg" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;">
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 0.8rem;">Sneha Gupta</div>
+          <div style="font-size: 0.6rem; color: #64748b;">Room 102 • Deluxe • Check-out tomorrow</div>
+        </div>
+        <div style="background: #fed7aa; padding: 4px 10px; border-radius: 30px; font-size: 0.6rem; font-weight: 600; color: #9a3412;">Check-out</div>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px;">
+        <img src="https://randomuser.me/api/portraits/men/89.jpg" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;">
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 0.8rem;">Mohan Prasad</div>
+          <div style="font-size: 0.6rem; color: #64748b;">Room 202 • Suite • Check-out tomorrow</div>
+        </div>
+        <div style="background: #fed7aa; padding: 4px 10px; border-radius: 30px; font-size: 0.6rem; font-weight: 600; color: #9a3412;">Check-out</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Staff Section -->
+  <div style="padding: 0 0 12px 0; margin: 0;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+      <div style="background: #f8fafc; border-radius: 14px; padding: 10px 6px; text-align: center; border: 1px solid #e2e8f0;">
+        <div style="font-size: 0.6rem; font-weight: 600; color: #64748b;">👨‍🍳 ACTIVE STAFF</div>
+        <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a;">12</div>
+        <div style="font-size: 0.5rem; color: #64748b;">6 HK • 4 Kitchen • 2 FD</div>
+      </div>
+      <div style="background: #f8fafc; border-radius: 14px; padding: 10px 6px; text-align: center; border: 1px solid #e2e8f0;">
+        <div style="font-size: 0.6rem; font-weight: 600; color: #64748b;">👔 MANAGEMENT</div>
+        <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a;">5</div>
+        <div style="font-size: 0.5rem; color: #64748b;">GM • RM • HR • Accounts</div>
+      </div>
+      <div style="background: #f8fafc; border-radius: 14px; padding: 10px 6px; text-align: center; border: 1px solid #e2e8f0;">
+        <div style="font-size: 0.6rem; font-weight: 600; color: #64748b;">🤝 AGENTS</div>
+        <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a;">8</div>
+        <div style="font-size: 0.5rem; color: #64748b;">Bookings today: 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Recent Guests (without phone number) -->
+  <div style="padding: 0 0 12px 0; margin: 0;">
+    <div style="font-size: 0.8rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">👤 RECENT GUESTS</div>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="background: white; border-radius: 14px; padding: 8px 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px;">
+        <img src="https://randomuser.me/api/portraits/men/15.jpg" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 0.75rem;">Ramesh Singh</div>
+          <div style="font-size: 0.55rem; color: #64748b;">Room 101 • Deluxe</div>
+        </div>
+        <div style="font-size: 0.55rem; color: #166534; background: #dcfce7; padding: 3px 8px; border-radius: 30px;">Checked-in</div>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 8px 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px;">
+        <img src="https://randomuser.me/api/portraits/women/42.jpg" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 0.75rem;">Kavita Joshi</div>
+          <div style="font-size: 0.55rem; color: #64748b;">Room 201 • Suite</div>
+        </div>
+        <div style="font-size: 0.55rem; color: #166534; background: #dcfce7; padding: 3px 8px; border-radius: 30px;">Checked-in</div>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 8px 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px;">
+        <img src="https://randomuser.me/api/portraits/men/67.jpg" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+        <div style="flex: 1;">
+          <div style="font-weight: 600; font-size: 0.75rem;">Vikram Mehta</div>
+          <div style="font-size: 0.55rem; color: #64748b;">Room 301 • Standard</div>
+        </div>
+        <div style="font-size: 0.55rem; color: #f59e0b; background: #fef3c7; padding: 3px 8px; border-radius: 30px;">Check-out tmrw</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Guest Reviews -->
+  <div style="padding: 0 0 12px 0; margin: 0;">
+    <div style="font-size: 0.8rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">⭐ GUEST REVIEWS</div>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="background: white; border-radius: 14px; padding: 10px; border: 1px solid #e2e8f0;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+          <img src="https://randomuser.me/api/portraits/women/33.jpg" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+          <div>
+            <div style="font-weight: 600; font-size: 0.75rem;">Meera Dasgupta</div>
+            <div style="font-size: 0.55rem; color: #64748b;">Room 103 • Checked out yesterday</div>
+          </div>
+          <div style="margin-left: auto; font-size: 0.7rem; color: #f59e0b;">★★★★★</div>
+        </div>
+        <div style="font-size: 0.7rem; color: #334155; line-height: 1.4;">"Amazing stay! Staff was very helpful, room was super clean. Will definitely come back."</div>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 10px; border: 1px solid #e2e8f0;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+          <img src="https://randomuser.me/api/portraits/men/55.jpg" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+          <div>
+            <div style="font-weight: 600; font-size: 0.75rem;">Rakesh Tiwari</div>
+            <div style="font-size: 0.55rem; color: #64748b;">Room 201 • Checked out today</div>
+          </div>
+          <div style="margin-left: auto; font-size: 0.7rem; color: #f59e0b;">★★★★☆</div>
+        </div>
+        <div style="font-size: 0.7rem; color: #334155; line-height: 1.4;">"Good location, nice food. Room service was quick. Slight delay at check-in but overall good."</div>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 10px; border: 1px solid #e2e8f0;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+          <img src="https://randomuser.me/api/portraits/women/89.jpg" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+          <div>
+            <div style="font-weight: 600; font-size: 0.75rem;">Komal Jain</div>
+            <div style="font-size: 0.55rem; color: #64748b;">Room 104 • Current guest</div>
+          </div>
+          <div style="margin-left: auto; font-size: 0.7rem; color: #f59e0b;">★★★★★</div>
+        </div>
+        <div style="font-size: 0.7rem; color: #334155; line-height: 1.4;">"Beautiful property, peaceful environment. The staff went above and beyond. Highly recommend!"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Bottom Occupancy -->
+  <div style="background: white; padding: 10px 0; border-top: 1px solid #e2e8f0; margin: 0;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div style="font-size: 0.55rem; color: #64748b;">OCCUPANCY RATE</div>
+        <div style="font-size: 0.9rem; font-weight: 700; color: #0f172a;">67%</div>
+      </div>
+      <div>
+        <div style="font-size: 0.55rem; color: #64748b;">AGENT BOOKINGS TODAY</div>
+        <div style="font-size: 0.9rem; font-weight: 700; color: #0f172a;">3 / 8</div>
+      </div>
+      <div>
+        <div style="font-size: 0.55rem; color: #64748b;">DIRECT BOOKINGS</div>
+        <div style="font-size: 0.9rem; font-weight: 700; color: #0f172a;">5</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: #ffffff;
+  }
+  *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  
+  /* Small screen responsive - prevent text wrap on stats */
+  @media (max-width: 420px) {
+    div[style*="white-space: nowrap"] {
+      font-size: 0.55rem !important;
+    }
+  }
+</style>

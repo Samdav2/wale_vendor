@@ -1,0 +1,437 @@
+<div style="max-width: 100%;">
+  <!-- Notification Toast -->
+  <div id="notificationToast" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #0f172a; color: white; padding: 10px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; box-shadow: 0 8px 20px rgba(0,0,0,0.15); z-index: 9999; transition: transform 0.2s ease; pointer-events: none; max-width: 85vw; text-align: center; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+
+  <form id="roomForm" style="display: flex; flex-direction: column; gap: 20px;">
+    <!-- Row 1: Room Number + Room Type -->
+    <div style="display: flex; gap: 12px; flex-wrap: nowrap;">
+      <div style="width: 35%; min-width: 0;">
+        <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Room Number</label>
+        <input type="text" name="roomNumber" id="roomNumberInput" placeholder="e.g., 101" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.9rem; box-sizing: border-box;">
+      </div>
+      <div style="flex: 1; min-width: 0; position: relative;">
+        <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Room Type</label>
+        <select name="roomType" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.9rem; background: white; appearance: none; -webkit-appearance: none; -moz-appearance: none; cursor: pointer;">
+          <option value="Standard">Standard</option>
+          <option value="Deluxe">Deluxe</option>
+          <option value="Suite">Suite</option>
+          <option value="Family">Family</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Row 2: Three Prices - GW, Regular, Offer -->
+    <div>
+      <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Price (per night)</label>
+      <div style="display: flex; gap: 10px; flex-wrap: nowrap;">
+        <div style="flex: 1; min-width: 0;">
+          <input type="number" name="gwPrice" placeholder="GW" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; appearance: textfield; -webkit-appearance: none; -moz-appearance: textfield; box-sizing: border-box; text-align: center;">
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <input type="number" name="regularPrice" placeholder="Regular" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; appearance: textfield; -webkit-appearance: none; -moz-appearance: textfield; box-sizing: border-box; text-align: center;">
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <input type="number" name="offerPrice" placeholder="Offer" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; appearance: textfield; -webkit-appearance: none; -moz-appearance: textfield; box-sizing: border-box; text-align: center;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Capacity + Mattress (horizontal) -->
+    <div>
+      <div style="display: flex; gap: 12px; flex-wrap: nowrap;">
+        <div style="flex: 1; min-width: 0;">
+          <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Capacity (persons)</label>
+          <input type="number" name="capacity" placeholder="e.g., 4" required min="1" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; appearance: textfield; -webkit-appearance: none; -moz-appearance: textfield; box-sizing: border-box; text-align: center;">
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Mattress (optional)</label>
+          <input type="number" name="mattressCount" id="mattressCount" placeholder="Number of mattress" min="0" value="0" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; appearance: textfield; -webkit-appearance: none; -moz-appearance: textfield; box-sizing: border-box; text-align: center;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Mattress Price Row (visible only if mattress count > 0) -->
+    <div id="mattressPriceRow" style="display: none;">
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <div style="flex: 2; min-width: 0;">
+          <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Price per mattress</label>
+          <input type="number" name="mattressPrice" id="mattressPrice" placeholder="0.00" step="0.01" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; appearance: textfield; -webkit-appearance: none; -moz-appearance: textfield; box-sizing: border-box; text-align: center;">
+        </div>
+        <div style="flex: 1; min-width: 80px;">
+          <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">&nbsp;</label>
+          <button type="button" id="freeMattressBtn" style="width: 100%; padding: 12px; background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; font-weight: 500; cursor: pointer; color: #166534; transition: 0.1s;">Free</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Amenities -->
+    <div>
+      <label style="display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; color: #334155;">Amenities (tap to select)</label>
+      <div id="amenitiesContainer" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%;">
+        <button type="button" data-amenity="Wi-Fi" class="amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; font-weight: 500;">Wi-Fi</button>
+        <button type="button" data-amenity="AC" class="amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; font-weight: 500;">AC</button>
+        <button type="button" data-amenity="Breakfast" class="amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; font-weight: 500;">Breakfast</button>
+        <button type="button" data-amenity="Parking" class="amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; font-weight: 500;">Parking</button>
+        <button type="button" data-amenity="Pool" class="amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; font-weight: 500;">Pool</button>
+        <button type="button" data-amenity="Gym" class="amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; font-weight: 500;">Gym</button>
+        <button type="button" data-amenity="Spa" class="amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; font-weight: 500;">Spa</button>
+        <button type="button" data-amenity="Sea View" class="amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; font-weight: 500;">Sea View</button>
+        <button type="button" data-amenity="Kitchen" class="amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; font-weight: 500;">Kitchen</button>
+        <button type="button" data-amenity="Pet Friendly" class="amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; font-weight: 500;">Pet Friendly</button>
+      </div>
+    </div>
+
+    <!-- Image Upload -->
+    <div>
+      <label style="display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; color: #334155;">Room Images (Max 6)</label>
+      <div id="imageGrid" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;"></div>
+      <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Description</label>
+      <textarea name="highlights" rows="5" placeholder="Describe your room..." style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; resize: vertical; box-sizing: border-box; min-height: 120px;"></textarea>
+    </div>
+
+    <button type="submit" style="background: #0f172a; color: white; border: none; padding: 14px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-top: 8px; width: 100%;">+ Add Room</button>
+  </form>
+</div>
+
+<style>
+  /* Hide all scrollbars everywhere - keep functional scrolling */
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  
+  *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
+  
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  
+  select {
+    background-image: none !important;
+    background: white;
+  }
+  
+  .amenity-btn.active {
+    background: #0f172a !important;
+    border-color: #0f172a !important;
+    color: white !important;
+  }
+  
+  .amenity-btn:focus {
+    outline: none;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    overflow-x: hidden;
+  }
+  
+  #roomForm {
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  
+  .free-active {
+    background: #166534 !important;
+    border-color: #166534 !important;
+    color: white !important;
+  }
+  
+  @media (max-width: 480px) {
+    .amenity-btn {
+      padding: 8px 14px !important;
+      font-size: 0.8rem !important;
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    // Store existing room numbers for duplicate check
+    let existingRoomNumbers = [];
+    
+    // Try to load existing rooms from localStorage (simulate database)
+    try {
+      const savedRooms = localStorage.getItem('hotelRooms');
+      if (savedRooms) {
+        const rooms = JSON.parse(savedRooms);
+        existingRoomNumbers = rooms.map(room => room.roomNumber);
+      }
+    } catch(e) { console.log("No existing rooms"); }
+    
+    const contentArea = document.getElementById('contentArea');
+    if (contentArea) {
+      contentArea.style.scrollbarWidth = 'none';
+      contentArea.style.msOverflowStyle = 'none';
+    }
+    
+    // Notification elements
+    const notificationToast = document.getElementById('notificationToast');
+    let notificationTimeout = null;
+    
+    function showNotification(message, isSuccess = true) {
+      if (notificationTimeout) clearTimeout(notificationTimeout);
+      notificationToast.textContent = message;
+      notificationToast.style.background = isSuccess ? '#0f172a' : '#dc2626';
+      notificationToast.style.transform = 'translateX(-50%) translateY(0)';
+      notificationTimeout = setTimeout(() => {
+        notificationToast.style.transform = 'translateX(-50%) translateY(-100px)';
+      }, 2000);
+    }
+    
+    const mattressCountInput = document.getElementById('mattressCount');
+    const mattressPriceRow = document.getElementById('mattressPriceRow');
+    const mattressPriceInput = document.getElementById('mattressPrice');
+    const freeMattressBtn = document.getElementById('freeMattressBtn');
+    let isMattressFree = false;
+    
+    function toggleMattressPriceRow() {
+      const count = parseInt(mattressCountInput.value) || 0;
+      if (count > 0) {
+        mattressPriceRow.style.display = 'block';
+      } else {
+        mattressPriceRow.style.display = 'none';
+        isMattressFree = false;
+        if (freeMattressBtn) {
+          freeMattressBtn.classList.remove('free-active');
+          freeMattressBtn.textContent = 'Free';
+        }
+        if (mattressPriceInput) mattressPriceInput.value = '';
+      }
+    }
+    
+    mattressCountInput.addEventListener('input', toggleMattressPriceRow);
+    
+    if (freeMattressBtn) {
+      freeMattressBtn.addEventListener('click', () => {
+        if (!isMattressFree) {
+          isMattressFree = true;
+          freeMattressBtn.classList.add('free-active');
+          freeMattressBtn.textContent = '✓ Free';
+          if (mattressPriceInput) {
+            mattressPriceInput.value = '0';
+            mattressPriceInput.disabled = true;
+            mattressPriceInput.style.background = '#f1f5f9';
+            mattressPriceInput.style.opacity = '0.7';
+          }
+        } else {
+          isMattressFree = false;
+          freeMattressBtn.classList.remove('free-active');
+          freeMattressBtn.textContent = 'Free';
+          if (mattressPriceInput) {
+            mattressPriceInput.value = '';
+            mattressPriceInput.disabled = false;
+            mattressPriceInput.style.background = 'white';
+            mattressPriceInput.style.opacity = '1';
+          }
+        }
+      });
+    }
+    
+    const amenityBtns = document.querySelectorAll('.amenity-btn');
+    let selectedAmenities = [];
+    
+    amenityBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const amenityValue = btn.getAttribute('data-amenity');
+        
+        if (btn.classList.contains('active')) {
+          btn.classList.remove('active');
+          selectedAmenities = selectedAmenities.filter(a => a !== amenityValue);
+        } else {
+          btn.classList.add('active');
+          selectedAmenities.push(amenityValue);
+        }
+      });
+    });
+    
+    const form = document.getElementById('roomForm');
+    const imageGrid = document.getElementById('imageGrid');
+    const fileInput = document.getElementById('fileInput');
+    const roomNumberInput = document.getElementById('roomNumberInput');
+    let images = [];
+    const MAX_IMAGES = 6;
+
+    function renderImages() {
+      if (!imageGrid) return;
+      imageGrid.innerHTML = '';
+      
+      images.forEach((img, idx) => {
+        const card = document.createElement('div');
+        card.style.cssText = 'width: 85px; height: 85px; border-radius: 12px; border: 1px solid #e2e8f0; position: relative; overflow: hidden; background: #f8fafc; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);';
+        
+        const imgEl = document.createElement('img');
+        imgEl.src = img.url;
+        imgEl.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '✕';
+        removeBtn.style.cssText = 'position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.65); color: white; border: none; border-radius: 20px; width: 24px; height: 24px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold;';
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (img.url && img.url.startsWith('blob:')) URL.revokeObjectURL(img.url);
+          images.splice(idx, 1);
+          renderImages();
+        };
+        
+        card.appendChild(imgEl);
+        card.appendChild(removeBtn);
+        imageGrid.appendChild(card);
+      });
+      
+      if (images.length < MAX_IMAGES) {
+        const plusBtn = document.createElement('div');
+        plusBtn.textContent = '+';
+        plusBtn.style.cssText = 'width: 85px; height: 85px; border-radius: 12px; border: 2px dashed #cbd5e1; background: #fefce8; display: flex; align-items: center; justify-content: center; font-size: 36px; color: #64748b; cursor: pointer; flex-shrink: 0;';
+        plusBtn.onclick = () => fileInput.click();
+        imageGrid.appendChild(plusBtn);
+      }
+    }
+
+    fileInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      for (let file of files) {
+        if (images.length >= MAX_IMAGES) {
+          showNotification(`Max ${MAX_IMAGES} images only`, false);
+          break;
+        }
+        if (!file.type.startsWith('image/')) continue;
+        const url = URL.createObjectURL(file);
+        images.push({ url, file });
+      }
+      renderImages();
+      fileInput.value = '';
+    });
+    
+    function resetFormToAddAnother() {
+      // Clear all form fields
+      form.querySelector('[name="roomNumber"]').value = '';
+      form.querySelector('[name="roomType"]').value = 'Standard';
+      form.querySelector('[name="gwPrice"]').value = '';
+      form.querySelector('[name="regularPrice"]').value = '';
+      form.querySelector('[name="offerPrice"]').value = '';
+      form.querySelector('[name="capacity"]').value = '';
+      form.querySelector('[name="highlights"]').value = '';
+      
+      // Reset mattress
+      mattressCountInput.value = '0';
+      toggleMattressPriceRow();
+      isMattressFree = false;
+      if (freeMattressBtn) {
+        freeMattressBtn.classList.remove('free-active');
+        freeMattressBtn.textContent = 'Free';
+      }
+      if (mattressPriceInput) {
+        mattressPriceInput.disabled = false;
+        mattressPriceInput.style.background = 'white';
+        mattressPriceInput.value = '';
+      }
+      
+      // Clear amenities
+      amenityBtns.forEach(btn => btn.classList.remove('active'));
+      selectedAmenities = [];
+      
+      // Clear images
+      images.forEach(img => { if (img.url && img.url.startsWith('blob:')) URL.revokeObjectURL(img.url); });
+      images = [];
+      renderImages();
+      
+      // Focus on room number
+      form.querySelector('[name="roomNumber"]').focus();
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const roomNumber = form.querySelector('[name="roomNumber"]').value.trim();
+      const roomType = form.querySelector('[name="roomType"]').value;
+      const gwPrice = form.querySelector('[name="gwPrice"]').value;
+      const regularPrice = form.querySelector('[name="regularPrice"]').value;
+      const offerPrice = form.querySelector('[name="offerPrice"]').value;
+      const capacity = form.querySelector('[name="capacity"]').value;
+      const mattressCount = form.querySelector('[name="mattressCount"]').value;
+      let mattressPrice = null;
+      
+      // Check for duplicate room number
+      if (existingRoomNumbers.includes(roomNumber)) {
+        showNotification(`Room ${roomNumber} already exists!`, false);
+        return;
+      }
+      
+      if (mattressCount && parseInt(mattressCount) > 0) {
+        if (isMattressFree) {
+          mattressPrice = 0;
+        } else {
+          mattressPrice = mattressPriceInput.value;
+          if (!mattressPrice || parseFloat(mattressPrice) < 0) {
+            showNotification("Enter valid mattress price or click Free", false);
+            return;
+          }
+        }
+      }
+      
+      if (!roomNumber) { showNotification("Room number required", false); return; }
+      if (!gwPrice || parseFloat(gwPrice) <= 0) { showNotification("Valid GW Price required", false); return; }
+      if (!regularPrice || parseFloat(regularPrice) <= 0) { showNotification("Valid Regular Price required", false); return; }
+      if (!capacity || parseInt(capacity) <= 0) { showNotification("Valid capacity required", false); return; }
+      
+      const highlights = form.querySelector('[name="highlights"]').value;
+      
+      // Add to existing rooms list
+      existingRoomNumbers.push(roomNumber);
+      
+      // Save to localStorage (simulate database)
+      const roomData = {
+        roomNumber, roomType,
+        prices: { gwPrice: parseFloat(gwPrice), regularPrice: parseFloat(regularPrice), offerPrice: offerPrice ? parseFloat(offerPrice) : null },
+        capacity: parseInt(capacity),
+        mattress: { count: parseInt(mattressCount) || 0, pricePerMattress: mattressPrice !== null ? parseFloat(mattressPrice) : null, isFree: isMattressFree },
+        amenities: selectedAmenities,
+        highlights,
+        imagesCount: images.length
+      };
+      
+      // Save to localStorage
+      let allRooms = [];
+      try {
+        const saved = localStorage.getItem('hotelRooms');
+        if (saved) allRooms = JSON.parse(saved);
+        allRooms.push(roomData);
+        localStorage.setItem('hotelRooms', JSON.stringify(allRooms));
+      } catch(e) { console.log("Save failed", e); }
+      
+      console.log('Room Data:', roomData);
+      
+      showNotification(`✓ Room ${roomNumber} added`);
+      
+      // Reset form for next room entry
+      resetFormToAddAnother();
+    });
+    
+    renderImages();
+    toggleMattressPriceRow();
+  })();
+</script>

@@ -1,0 +1,249 @@
+<div style="max-width: 100%; background: white;">
+  <!-- Notification Toast - Fixed position, properly hidden -->
+  <div id="notificationToast" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #0f172a; color: white; padding: 10px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; box-shadow: 0 8px 20px rgba(0,0,0,0.15); z-index: 9999; transition: transform 0.2s ease; pointer-events: none; max-width: 85vw; text-align: center; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+
+  <!-- SEARCH BAR - ONLY visible on landing, before selection -->
+  <div id="searchContainer" style="padding: 16px;">
+    <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">SEARCH NEARBY PLACE</label>
+    <input type="text" id="nearbySearchInput" placeholder="e.g., Keli Kunj, Prem Mandir, Banke Bihari" autocomplete="off" style="width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; font-size: 0.95rem; background: white; box-sizing: border-box;">
+  </div>
+
+  <!-- SEARCH RESULTS - appears only when typing -->
+  <div id="searchResultsArea" style="display: none; border-top: 1px solid #eef2f6; padding: 12px 16px;">
+    <div style="font-size: 0.7rem; font-weight: 600; color: #475569; margin-bottom: 8px;">SELECT PLACE</div>
+    <div id="nearbyResultsGrid" style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; scrollbar-width: none;"></div>
+  </div>
+
+  <!-- EDIT PANEL - appears only after selecting a place -->
+  <div id="editPanel" style="display: none;">
+    <!-- Name bar - non-editable -->
+    <div style="padding: 14px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; border-top: 1px solid #eef2f6;">
+      <div style="font-size: 0.7rem; font-weight: 600; color: #64748b; margin-bottom: 4px;">PLACE NAME</div>
+      <div id="selectedPlaceName" style="font-size: 1rem; font-weight: 600; color: #0f172a;"></div>
+    </div>
+
+    <form id="nearbyForm">
+      <!-- Distance in KM & Walking Distance in Minutes - side by side -->
+      <div style="padding: 14px 16px; border-bottom: 1px solid #ecf3f9;">
+        <label style="display: block; margin-bottom: 8px; font-size: 0.7rem; font-weight: 600; color: #334155;">DISTANCE DETAILS</label>
+        <div style="display: flex; gap: 12px; flex-wrap: nowrap; width: 100%;">
+          <div style="flex: 1; min-width: 0;">
+            <input type="text" id="distanceKm" placeholder="Distance (KM)" value="" style="width: 100%; padding: 12px 8px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; text-align: center; background: white; box-sizing: border-box;">
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <input type="text" id="walkingMins" placeholder="Walking (mins)" value="" style="width: 100%; padding: 12px 8px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; text-align: center; background: white; box-sizing: border-box;">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" style="width: 100%; background: #0f172a; color: white; border: none; padding: 14px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">+ ADD NEARBY PLACE</button>
+    </form>
+  </div>
+</div>
+
+<style>
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .place-item {
+    padding: 14px 16px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.1s;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1e293b;
+  }
+  .place-item:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+  .place-item.selected {
+    border: 2px solid #0f172a;
+    background: #fefce8;
+  }
+  
+  @media (max-width: 480px) {
+    input, button {
+      font-size: 14px !important;
+    }
+    .place-item {
+      padding: 12px 14px;
+      font-size: 0.85rem;
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    // NEARBY PLACES DATABASE (only names, no images)
+    const NEARBY_PLACES = [
+      { id: 1, name: "Keli Kunj" },
+      { id: 2, name: "Prem Mandir" },
+      { id: 3, name: "Banke Bihari Temple" },
+      { id: 4, name: "ISKCON Temple" },
+      { id: 5, name: "Dwarkadhish Temple" },
+      { id: 6, name: "Radha Raman Temple" },
+      { id: 7, name: "Madan Mohan Temple" },
+      { id: 8, name: "Gopinath Temple" },
+      { id: 9, name: "Vrindavan Chandrodaya Mandir" },
+      { id: 10, name: "Seva Kunj" },
+      { id: 11, name: "Nidhivan" },
+      { id: 12, name: "Shri Yamuna Ji" },
+      { id: 13, name: "Kusum Sarovar" },
+      { id: 14, name: "Radha Gokulananda Temple" },
+      { id: 15, name: "Shahji Temple" },
+      { id: 16, name: "Rangaji Temple" },
+      { id: 17, name: "Mata Vaishno Devi Dham" },
+      { id: 18, name: "Gita Mandir" },
+      { id: 19, name: "Maa Katyayani Temple" },
+      { id: 20, name: "Vrindavan Market" }
+    ];
+
+    let selectedPlace = null;
+    let notificationTimeout = null;
+    
+    // DOM elements
+    const searchContainer = document.getElementById('searchContainer');
+    const searchInput = document.getElementById('nearbySearchInput');
+    const resultsArea = document.getElementById('searchResultsArea');
+    const resultsGrid = document.getElementById('nearbyResultsGrid');
+    const editPanel = document.getElementById('editPanel');
+    const selectedPlaceNameSpan = document.getElementById('selectedPlaceName');
+    const nearbyForm = document.getElementById('nearbyForm');
+    const distanceKmInput = document.getElementById('distanceKm');
+    const walkingMinsInput = document.getElementById('walkingMins');
+    const notificationToast = document.getElementById('notificationToast');
+
+    function showNotification(message, isSuccess = true) {
+      if (notificationTimeout) {
+        clearTimeout(notificationTimeout);
+      }
+      
+      notificationToast.textContent = message;
+      notificationToast.style.background = isSuccess ? '#0f172a' : '#dc2626';
+      notificationToast.style.transform = 'translateX(-50%) translateY(0)';
+      notificationToast.style.opacity = '1';
+      
+      notificationTimeout = setTimeout(() => {
+        notificationToast.style.transform = 'translateX(-50%) translateY(-100px)';
+      }, 2000);
+    }
+
+    function resetToSearchView() {
+      searchContainer.style.display = "block";
+      searchInput.value = "";
+      resultsArea.style.display = "none";
+      resultsGrid.innerHTML = "";
+      editPanel.style.display = "none";
+      selectedPlace = null;
+    }
+
+    function renderSearchResults(query) {
+      const trimmed = query.trim();
+      if (trimmed === "") {
+        resultsArea.style.display = "none";
+        return;
+      }
+      
+      const lowerQuery = trimmed.toLowerCase();
+      const filtered = NEARBY_PLACES.filter(place => place.name.toLowerCase().includes(lowerQuery));
+      
+      resultsArea.style.display = "block";
+      if (filtered.length === 0) {
+        resultsGrid.innerHTML = `<div style="padding: 20px; text-align:center; color:#94a3b8;">No place found: "${trimmed}"</div>`;
+        return;
+      }
+      
+      resultsGrid.innerHTML = "";
+      filtered.forEach(place => {
+        const item = document.createElement('div');
+        item.className = 'place-item';
+        if (selectedPlace && selectedPlace.id === place.id) {
+          item.classList.add('selected');
+        }
+        item.textContent = place.name;
+        item.onclick = () => selectPlace(place);
+        resultsGrid.appendChild(item);
+      });
+    }
+
+    function selectPlace(place) {
+      selectedPlace = place;
+      
+      searchContainer.style.display = "none";
+      resultsArea.style.display = "none";
+      editPanel.style.display = "block";
+      selectedPlaceNameSpan.textContent = place.name;
+      
+      distanceKmInput.value = "";
+      walkingMinsInput.value = "";
+    }
+
+    nearbyForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      if (!selectedPlace) {
+        showNotification("Please select a place from search results", false);
+        return;
+      }
+      
+      const distance = distanceKmInput.value.trim();
+      const walkingTime = walkingMinsInput.value.trim();
+      
+      if (distance === "") {
+        showNotification("Please enter distance in KM", false);
+        return;
+      }
+      if (walkingTime === "") {
+        showNotification("Please enter walking time in minutes", false);
+        return;
+      }
+      
+      if (isNaN(parseFloat(distance)) || parseFloat(distance) < 0) {
+        showNotification("Please enter a valid distance", false);
+        return;
+      }
+      if (isNaN(parseInt(walkingTime)) || parseInt(walkingTime) < 0) {
+        showNotification("Please enter a valid walking time", false);
+        return;
+      }
+      
+      console.log("Nearby Place Data:", {
+        placeId: selectedPlace.id,
+        placeName: selectedPlace.name,
+        distanceKm: distance,
+        walkingMinutes: walkingTime
+      });
+      
+      showNotification(`✓ ${selectedPlace.name} added (${distance}km, ${walkingTime}min)`);
+      
+      setTimeout(() => {
+        resetToSearchView();
+      }, 600);
+    });
+    
+    searchInput.addEventListener('input', (e) => {
+      if (editPanel.style.display === "block") return;
+      
+      const query = e.target.value;
+      if (query.trim() === "") {
+        resultsArea.style.display = "none";
+        resultsGrid.innerHTML = "";
+      } else {
+        renderSearchResults(query);
+      }
+    });
+    
+    resultsArea.style.display = "none";
+    editPanel.style.display = "none";
+    selectedPlace = null;
+  })();
+</script>

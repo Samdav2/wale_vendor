@@ -1,0 +1,185 @@
+<div style="margin:0; padding:0; width:100%; background:white;">
+  <div id="cancelToast" style="position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:#0f172a; color:white; padding:8px 16px; border-radius:40px; font-size:0.75rem; z-index:9999; transition:0.2s; pointer-events:none;"></div>
+
+  <!-- Cancellation Policy Display Mode -->
+  <div id="cancelDisplay" style="padding:16px 0;">
+    <div id="cancelContent" style="font-size:0.85rem; line-height:1.6; color:#1e293b; white-space:pre-wrap; padding:0; cursor:pointer;"></div>
+  </div>
+
+  <!-- Cancellation Policy Edit Mode -->
+  <div id="cancelEdit" style="display:none; padding:16px 0;">
+    <textarea id="cancelTextarea" rows="14" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem; line-height:1.5; font-family:inherit; resize:vertical;"></textarea>
+    <div style="display:flex; gap:12px; margin-top:12px; padding:0;">
+      <button id="saveCancelBtn" style="flex:1; padding:10px; background:#0f172a; color:white; border:none; border-radius:8px; cursor:pointer; font-size:0.85rem;">Save</button>
+      <button id="cancelCancelBtn" style="flex:1; padding:10px; background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; border-radius:8px; cursor:pointer; font-size:0.85rem;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirmModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:100000; align-items:center; justify-content:center;">
+  <div style="background:white; width:85%; max-width:280px; border-radius:12px; overflow:hidden;">
+    <div style="background:#0f172a; padding:14px; color:white; font-weight:600; font-size:0.9rem; text-align:center;">Confirm</div>
+    <div style="padding:20px; text-align:center;"><p id="confirmMsg" style="margin:0; font-size:0.9rem;">Are you sure?</p></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; border-top:1px solid #eef2f6;">
+      <button id="confirmNo" style="padding:12px; border:none; background:#f8fafc; color:#475569; border-right:1px solid #eef2f6; cursor:pointer;">Cancel</button>
+      <button id="confirmYes" style="padding:12px; border:none; background:#f8fafc; color:#dc2626; cursor:pointer;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  *{margin:0; padding:0; box-sizing:border-box; scrollbar-width:none;}
+  *::-webkit-scrollbar{display:none;}
+  body, html{margin:0; padding:0;}
+</style>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'cancellation_policy';
+  const defaultPolicy = `CANCELLATION POLICY
+
+STANDARD CANCELLATION POLICY
+
+1. Free cancellation up to 7 days prior to check-in date.
+   - Full refund will be issued to the original payment method.
+   - No questions asked cancellation within this period.
+
+2. Cancellation between 7 days and 48 hours before check-in.
+   - 50% of the total booking amount will be charged as cancellation fee.
+   - Remaining 50% will be refunded within 5-7 business days.
+
+3. Cancellation within 48 hours of check-in date.
+   - 100% of the total booking amount will be charged.
+   - No refund will be provided for late cancellations.
+
+4. No-show policy
+   - If you do not arrive on the check-in date without prior cancellation, the entire booking amount will be charged and no refund will be issued.
+
+5. Early departure
+   - If you check out before your scheduled departure date, no refund will be provided for the unused nights.
+
+PEAK SEASON & SPECIAL DATES POLICY
+
+During peak season (December 20 to January 10, major holidays, festivals, and long weekends):
+
+1. Cancellation 30 days prior - 50% refund
+2. Cancellation 15-30 days prior - 25% refund  
+3. Cancellation less than 15 days - No refund
+
+GROUP BOOKINGS (3 or more rooms)
+
+1. Cancellation 30 days prior - 75% refund
+2. Cancellation 15-30 days prior - 50% refund
+3. Cancellation less than 15 days - No refund
+
+NON-REFUNDABLE BOOKINGS
+
+Some promotional rates and special offers are marked as "Non-Refundable". For these bookings:
+
+- No cancellations or modifications are allowed.
+- No refund will be provided under any circumstances.
+- Please review your booking carefully before confirming non-refundable rates.
+
+HOW TO CANCEL A BOOKING
+
+You can cancel your booking by:
+- Logging into your account and accessing "My Bookings"
+- Calling our front desk at +91 9876543210
+- Sending an email to cancellations@hotel.com with your booking ID
+
+Refunds will be processed within 5-7 business days after cancellation approval. The refund time depends on your bank or payment provider.
+
+We recommend purchasing travel insurance to cover unexpected changes in your travel plans.
+
+For any questions regarding cancellations, please contact our support team.`;
+  
+  let policy = localStorage.getItem(STORAGE_KEY);
+  if(!policy){
+    policy = defaultPolicy;
+    localStorage.setItem(STORAGE_KEY, policy);
+  }
+  
+  function toast(msg, isErr){ 
+    let t = document.getElementById('cancelToast');
+    t.textContent = msg;
+    t.style.background = isErr ? '#b91c1c' : '#0f172a';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => t.style.transform = 'translateX(-50%) translateY(-100px)', 2000);
+  }
+  
+  function confirm(msg, onYes){
+    let modal = document.getElementById('confirmModal');
+    document.getElementById('confirmMsg').textContent = msg;
+    modal.style.display = 'flex';
+    let yes = document.getElementById('confirmYes'), no = document.getElementById('confirmNo');
+    let handler = () => { modal.style.display = 'none'; yes.removeEventListener('click', yh); no.removeEventListener('click', nh); };
+    let yh = () => { handler(); onYes(); };
+    let nh = () => { handler(); };
+    yes.addEventListener('click', yh);
+    no.addEventListener('click', nh);
+  }
+  
+  function showDisplayMode(){
+    document.getElementById('cancelDisplay').style.display = 'block';
+    document.getElementById('cancelEdit').style.display = 'none';
+    document.getElementById('cancelContent').innerHTML = escapeHtml(policy).replace(/\n/g, '<br>');
+  }
+  
+  function showEditMode(){
+    document.getElementById('cancelDisplay').style.display = 'none';
+    document.getElementById('cancelEdit').style.display = 'block';
+    document.getElementById('cancelTextarea').value = policy;
+    document.getElementById('cancelTextarea').focus();
+  }
+  
+  function savePolicy(){
+    let newPolicy = document.getElementById('cancelTextarea').value;
+    if(newPolicy.trim() === ''){
+      toast('Cancellation policy cannot be empty', true);
+      return;
+    }
+    policy = newPolicy;
+    localStorage.setItem(STORAGE_KEY, policy);
+    showDisplayMode();
+    toast('Cancellation policy saved');
+  }
+  
+  function cancelEdit(){
+    if(document.getElementById('cancelTextarea').value !== policy){
+      confirm('Discard changes?', () => {
+        showDisplayMode();
+      });
+    } else {
+      showDisplayMode();
+    }
+  }
+  
+  function escapeHtml(s){
+    if(!s) return '';
+    return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+  }
+  
+  // Double click on display area to edit
+  document.getElementById('cancelDisplay').ondblclick = showEditMode;
+  
+  document.getElementById('saveCancelBtn').onclick = savePolicy;
+  document.getElementById('cancelCancelBtn').onclick = cancelEdit;
+  
+  document.getElementById('confirmModal').onclick = (e) => { 
+    if(e.target === document.getElementById('confirmModal')) 
+      document.getElementById('confirmModal').style.display = 'none'; 
+  };
+  
+  // Force remove parent gaps
+  let p = document.currentScript;
+  while(p && p !== document.body) {
+    if(p.style) { p.style.margin = '0'; p.style.padding = '0'; }
+    p = p.parentElement;
+  }
+  if(document.body) { document.body.style.margin = '0'; document.body.style.padding = '0'; }
+  if(document.documentElement) { document.documentElement.style.margin = '0'; document.documentElement.style.padding = '0'; }
+  
+  showDisplayMode();
+})();
+</script>

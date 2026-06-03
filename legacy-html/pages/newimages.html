@@ -1,0 +1,270 @@
+<div class="media-fullwide">
+    <div class="media-section">
+        <div class="section-header">LOGO (512x512)</div>
+        <div class="responsive-grid" id="logoGrid"></div>
+    </div>
+
+    <div class="media-section">
+        <div class="section-header">BANNER (900x400)</div>
+        <div class="responsive-grid" id="bannersGrid"></div>
+    </div>
+
+    <div class="media-section">
+        <div class="section-header">HIGHLIGHT (400x600)</div>
+        <div class="responsive-grid" id="highlightsGrid"></div>
+    </div>
+
+    <div class="media-section">
+        <div class="section-header">ADS (600x250)</div>
+        <div class="responsive-grid" id="adsGrid"></div>
+    </div>
+
+    <div class="media-section">
+        <div class="section-header">GALLERY (900x600)</div>
+        <div class="responsive-grid" id="galleryGrid"></div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, .media-fullwide { scrollbar-width: none; -ms-overflow-style: none; }
+    html::-webkit-scrollbar, body::-webkit-scrollbar, .media-fullwide::-webkit-scrollbar { display: none; }
+    .media-fullwide { width: 100%; background: #fff; padding: 0; overflow-y: auto; }
+    .media-section { margin-bottom: 28px; padding: 0; }
+    .section-header { padding: 0 0 10px 0; font-size: 0.85rem; font-weight: 600; color: #1a2c3e; }
+    
+    /* RESPONSIVE GRID - auto fits screen size */
+    .responsive-grid {
+        display: grid;
+        gap: 12px;
+        padding: 0;
+    }
+    
+    /* Mobile: 2 columns */
+    @media (max-width: 640px) {
+        .responsive-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    /* Tablet: 3 columns */
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .responsive-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    
+    /* Desktop: 4 columns */
+    @media (min-width: 1025px) and (max-width: 1400px) {
+        .responsive-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    
+    /* Large screen: 5 columns */
+    @media (min-width: 1401px) {
+        .responsive-grid { grid-template-columns: repeat(5, 1fr); }
+    }
+    
+    .img-card {
+        position: relative;
+        background: #fafcfe;
+        border-radius: 10px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+    }
+    .card-preview {
+        width: 100%;
+        position: relative;
+    }
+    .card-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    
+    .remove-icon {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(0,0,0,0.7);
+        width: 24px;
+        height: 24px;
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        color: white;
+        z-index: 20;
+    }
+    .remove-icon:hover { background: #c2412c; }
+    
+    .add-card {
+        background: #fefefe;
+        border: 1.5px dashed #cbdde9;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 10px;
+        min-height: 120px;
+    }
+    .add-card:hover { background: #f4fafd; border-color: #7f9eb5; }
+    .plus-symbol { font-size: 1.8rem; color: #5a7e9c; }
+    .size-badge { font-size: 0.6rem; color: #8da0b0; }
+    
+    /* Aspect ratios */
+    .logo-card { aspect-ratio: 1/1; }
+    .banner-card { aspect-ratio: 900/400; }
+    .highlight-card { aspect-ratio: 400/600; }
+    .ads-card { aspect-ratio: 600/250; }
+    .gallery-card { aspect-ratio: 900/600; }
+    
+    .add-card.logo-card, .add-card.banner-card, .add-card.highlight-card, .add-card.ads-card, .add-card.gallery-card {
+        aspect-ratio: auto;
+        min-height: 100px;
+    }
+    
+    #toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(120px);
+        background: #1f2e3a;
+        color: white;
+        padding: 8px 18px;
+        border-radius: 40px;
+        font-size: 0.75rem;
+        z-index: 9999;
+        transition: transform 0.2s;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+    @media (max-width: 550px) {
+        #toast { white-space: normal; font-size: 0.7rem; max-width: 85vw; text-align: center; }
+        .add-card { min-height: 90px; }
+    }
+    input { display: none; }
+</style>
+
+<script>
+    (function(){
+        const limits = {logo:1, banner:4, highlight:2, ads:2, gallery:16};
+        let logo=[], banner=[], highlight=[], ads=[], gallery=[];
+        let db=null;
+        
+        function openDB(){
+            return new Promise(r=>{
+                let req=indexedDB.open('ImgDB_Responsive',1);
+                req.onsuccess=()=>{ db=req.result; r(); };
+                req.onerror=()=>r();
+                req.onupgradeneeded=e=>{ if(!e.target.result.objectStoreNames.contains('imgs')) e.target.result.createObjectStore('imgs',{keyPath:'id'}); };
+            });
+        }
+        
+        async function loadAll(){
+            if(!db) await openDB();
+            if(!db) return {logo:[],banner:[],highlight:[],ads:[],gallery:[]};
+            return new Promise(r=>{
+                db.transaction('imgs','readonly').objectStore('imgs').getAll().onsuccess=e=>{
+                    let data=e.target.result||[], logo=[], banner=[], highlight=[], ads=[], gallery=[];
+                    data.forEach(item=>{
+                        if(item.type==='logo') logo.push(item.url);
+                        else if(item.type==='banner') banner.push(item.url);
+                        else if(item.type==='highlight') highlight.push(item.url);
+                        else if(item.type==='ads') ads.push(item.url);
+                        else if(item.type==='gallery') gallery.push(item.url);
+                    });
+                    r({logo,banner,highlight,ads,gallery});
+                };
+            });
+        }
+        
+        async function saveImg(type,url){
+            if(!db) await openDB();
+            if(!db) return;
+            db.transaction('imgs','readwrite').objectStore('imgs').put({id:`${type}_${Date.now()}_${Math.random()}`,type,url});
+        }
+        
+        async function deleteImg(type,url){
+            if(!db) await openDB();
+            if(!db) return;
+            let store=db.transaction('imgs','readwrite').objectStore('imgs');
+            store.getAll().onsuccess=e=>{ e.target.result.forEach(item=>{ if(item.type===type && item.url===url) store.delete(item.id); }); };
+        }
+        
+        function toast(msg,err=false){
+            let t=document.getElementById('toast');
+            if(!t) return;
+            t.textContent=msg;
+            t.style.background=err?'#b13e3e':'#1f2e3a';
+            t.style.transform='translateX(-50%) translateY(0)';
+            setTimeout(()=>t.style.transform='translateX(-50%) translateY(120px)',2000);
+        }
+        
+        function readFile(file){ return new Promise(r=>{ let rd=new FileReader(); rd.onload=()=>r(rd.result); rd.readAsDataURL(file); }); }
+        
+        function addImage(col,type,limit,setter,render){
+            if(col.length>=limit){ toast(`Max ${limit}`,true); return; }
+            let inp=document.createElement('input');
+            inp.type='file';
+            inp.accept='image/*';
+            inp.onchange=async e=>{
+                let file=e.target.files[0];
+                if(!file) return;
+                if(file.size>6*1024*1024){ toast('Max 6MB',true); return; }
+                let url=await readFile(file);
+                await saveImg(type,url);
+                setter([...col,url]);
+                render();
+                toast(`Added (${col.length+1}/${limit})`);
+            };
+            inp.click();
+        }
+        
+        function removeImage(col,type,idx,setter,render){
+            let url=col[idx];
+            setter(col.filter((_,i)=>i!==idx));
+            deleteImg(type,url);
+            render();
+            toast('Removed');
+        }
+        
+        function makeCard(src,idx,type,col,setter,render){
+            let card=document.createElement('div');
+            card.className=`img-card ${type}-card`;
+            let preview=document.createElement('div');
+            preview.className='card-preview';
+            preview.style.position='relative';
+            let img=document.createElement('img');
+            img.src=src;
+            preview.appendChild(img);
+            let cross=document.createElement('div');
+            cross.className='remove-icon';
+            cross.innerHTML='✕';
+            cross.onclick=()=>removeImage(col,type,idx,setter,render);
+            preview.appendChild(cross);
+            card.appendChild(preview);
+            return card;
+        }
+        
+        function makeAdd(type,sizeText,col,limit,setter,render){
+            if(col.length>=limit) return null;
+            let card=document.createElement('div');
+            card.className=`add-card ${type}-card`;
+            card.innerHTML=`<div class="plus-symbol">+</div><div class="size-badge">${sizeText}</div>`;
+            card.onclick=()=>addImage(col,type,limit,setter,render);
+            return card;
+        }
+        
+        function renderLogo(){ let g=document.getElementById('logoGrid'); if(!g) return; g.innerHTML=''; logo.forEach((img,i)=>g.appendChild(makeCard(img,i,'logo',logo,v=>logo=v,renderLogo))); let add=makeAdd('logo','512x512',logo,1,v=>logo=v,renderLogo); if(add) g.appendChild(add); }
+        function renderBanners(){ let g=document.getElementById('bannersGrid'); if(!g) return; g.innerHTML=''; banner.forEach((img,i)=>g.appendChild(makeCard(img,i,'banner',banner,v=>banner=v,renderBanners))); let add=makeAdd('banner','900x400',banner,4,v=>banner=v,renderBanners); if(add) g.appendChild(add); }
+        function renderHighlights(){ let g=document.getElementById('highlightsGrid'); if(!g) return; g.innerHTML=''; highlight.forEach((img,i)=>g.appendChild(makeCard(img,i,'highlight',highlight,v=>highlight=v,renderHighlights))); let add=makeAdd('highlight','400x600',highlight,2,v=>highlight=v,renderHighlights); if(add) g.appendChild(add); }
+        function renderAds(){ let g=document.getElementById('adsGrid'); if(!g) return; g.innerHTML=''; ads.forEach((img,i)=>g.appendChild(makeCard(img,i,'ads',ads,v=>ads=v,renderAds))); let add=makeAdd('ads','600x250',ads,2,v=>ads=v,renderAds); if(add) g.appendChild(add); }
+        function renderGallery(){ let g=document.getElementById('galleryGrid'); if(!g) return; g.innerHTML=''; gallery.forEach((img,i)=>g.appendChild(makeCard(img,i,'gallery',gallery,v=>gallery=v,renderGallery))); let add=makeAdd('gallery','900x600',gallery,16,v=>gallery=v,renderGallery); if(add) g.appendChild(add); }
+        
+        async function init(){ await openDB(); let data=await loadAll(); logo=data.logo.slice(0,1); banner=data.banner.slice(0,4); highlight=data.highlight.slice(0,2); ads=data.ads.slice(0,2); gallery=data.gallery.slice(0,16); renderLogo(); renderBanners(); renderHighlights(); renderAds(); renderGallery(); }
+        init();
+    })();
+</script>

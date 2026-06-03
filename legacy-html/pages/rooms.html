@@ -1,0 +1,460 @@
+<div style="max-width: 100%;" id="roomsContainer">
+  <div id="roomsGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0;"></div>
+</div>
+
+<div id="editPanel" style="display: none;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 0 12px 0; border-bottom: 1px solid #e2e8f0;">
+    <h3 style="margin: 0; font-size: 1.25rem;">Edit Room</h3>
+    <button id="closeEditBtn" style="background: transparent; border: none; font-size: 22px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">✕</button>
+  </div>
+
+  <form id="editForm" style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; gap: 12px; flex-wrap: nowrap;">
+      <div style="width: 35%; min-width: 0;">
+        <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Room Number</label>
+        <input type="text" id="editRoomNumber" readonly style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.9rem; background: #f1f5f9; color: #64748b;">
+      </div>
+      <div style="flex: 1; min-width: 0;">
+        <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Room Type</label>
+        <select id="editRoomType" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.9rem; background: white; appearance: none; -webkit-appearance: none;">
+          <option value="Standard">Standard</option>
+          <option value="Deluxe">Deluxe</option>
+          <option value="Suite">Suite</option>
+          <option value="Family">Family</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Price (per night)</label>
+      <div style="display: flex; gap: 10px; flex-wrap: nowrap;">
+        <div style="flex: 1; min-width: 0;">
+          <input type="text" id="editGwPrice" readonly style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; background: #f1f5f9; color: #64748b; text-align: center;">
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <input type="number" id="editRegularPrice" placeholder="Regular" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; text-align: center;">
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <input type="number" id="editOfferPrice" placeholder="Offer" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; text-align: center;">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="display: flex; gap: 12px; flex-wrap: nowrap;">
+        <div style="flex: 1; min-width: 0;">
+          <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Capacity (persons)</label>
+          <input type="number" id="editCapacity" min="1" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; text-align: center;">
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Mattress (optional)</label>
+          <input type="number" id="editMattressCount" min="0" value="0" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; text-align: center;">
+        </div>
+      </div>
+    </div>
+
+    <div id="editMattressPriceRow" style="display: none;">
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <div style="flex: 2; min-width: 0;">
+          <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Price per mattress</label>
+          <input type="number" id="editMattressPrice" step="0.01" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; text-align: center;">
+        </div>
+        <div style="flex: 1; min-width: 80px;">
+          <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">&nbsp;</label>
+          <button type="button" id="editFreeMattressBtn" style="width: 100%; padding: 12px; background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; font-weight: 500; cursor: pointer;">Free</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label style="display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; color: #334155;">Amenities (tap to select)</label>
+      <div id="editAmenitiesContainer" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%;">
+        <button type="button" data-amenity="Wi-Fi" class="edit-amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; color: #1e293b;">Wi-Fi</button>
+        <button type="button" data-amenity="AC" class="edit-amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; color: #1e293b;">AC</button>
+        <button type="button" data-amenity="Breakfast" class="edit-amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; color: #1e293b;">Breakfast</button>
+        <button type="button" data-amenity="Parking" class="edit-amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; color: #1e293b;">Parking</button>
+        <button type="button" data-amenity="Pool" class="edit-amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; color: #1e293b;">Pool</button>
+        <button type="button" data-amenity="Gym" class="edit-amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; color: #1e293b;">Gym</button>
+        <button type="button" data-amenity="Spa" class="edit-amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; color: #1e293b;">Spa</button>
+        <button type="button" data-amenity="Sea View" class="edit-amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; color: #1e293b;">Sea View</button>
+        <button type="button" data-amenity="Kitchen" class="edit-amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; color: #1e293b;">Kitchen</button>
+        <button type="button" data-amenity="Pet Friendly" class="edit-amenity-btn" style="padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; cursor: pointer; color: #1e293b;">Pet Friendly</button>
+      </div>
+    </div>
+
+    <div>
+      <label style="display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; color: #334155;">Room Images (Max 6)</label>
+      <div id="editImageGrid" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;"></div>
+      <input type="file" id="editFileInput" accept="image/*" multiple style="display: none;">
+    </div>
+
+    <div>
+      <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">Description</label>
+      <textarea id="editDescription" rows="5" placeholder="Describe your room..." style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; resize: vertical; min-height: 120px;"></textarea>
+    </div>
+
+    <div style="display: flex; gap: 12px; padding-bottom: 0;">
+      <button type="submit" style="flex: 1; background: #0f172a; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">Save Changes</button>
+      <button type="button" id="cancelEditBtn" style="flex: 1; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<style>
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  .room-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    position: relative;
+  }
+  .room-image {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+  }
+  .room-info {
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .room-number {
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .room-type {
+    font-size: 0.7rem;
+    color: #64748b;
+  }
+  .edit-amenity-btn.active {
+    background: #0f172a !important;
+    border-color: #0f172a !important;
+    color: white !important;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .free-active {
+    background: #166534 !important;
+    border-color: #166534 !important;
+    color: white !important;
+  }
+  #roomsContainer, #editPanel {
+    margin: 0;
+    padding: 0;
+  }
+</style>
+
+<script>
+  (function() {
+    let roomsData = [];
+
+    function loadRooms() {
+      const stored = localStorage.getItem('hotel_rooms_data');
+      if (stored) {
+        try {
+          roomsData = JSON.parse(stored);
+          if (Array.isArray(roomsData)) return;
+        } catch(e) {}
+      }
+      roomsData = [
+        { number: "101", type: "Standard", image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=400&h=300&fit=crop", gwPrice: 100, regularPrice: 150, offerPrice: 120, capacity: 2, mattressCount: 0, mattressPrice: null, mattressFree: false, amenities: ["Wi-Fi", "AC"], description: "Cozy standard room" },
+        { number: "102", type: "Standard", image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop", gwPrice: 100, regularPrice: 150, offerPrice: 120, capacity: 2, mattressCount: 0, mattressPrice: null, mattressFree: false, amenities: ["Wi-Fi"], description: "" },
+        { number: "201", type: "Deluxe", image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400&h=300&fit=crop", gwPrice: 180, regularPrice: 250, offerPrice: 200, capacity: 3, mattressCount: 1, mattressPrice: 25, mattressFree: false, amenities: ["Wi-Fi", "AC", "Breakfast"], description: "Spacious deluxe room" },
+        { number: "202", type: "Deluxe", image: "https://images.unsplash.com/photo-1587985064135-0366536eab42?w=400&h=300&fit=crop", gwPrice: 180, regularPrice: 250, offerPrice: 200, capacity: 3, mattressCount: 0, mattressPrice: null, mattressFree: false, amenities: ["Wi-Fi", "AC"], description: "" },
+        { number: "301", type: "Suite", image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=300&fit=crop", gwPrice: 300, regularPrice: 450, offerPrice: 350, capacity: 4, mattressCount: 2, mattressPrice: 30, mattressFree: false, amenities: ["Wi-Fi", "AC", "Pool", "Gym"], description: "Luxury suite with ocean view" },
+        { number: "302", type: "Family", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=300&fit=crop", gwPrice: 250, regularPrice: 380, offerPrice: 300, capacity: 5, mattressCount: 1, mattressPrice: 20, mattressFree: true, amenities: ["Wi-Fi", "AC", "Kitchen"], description: "Perfect for families" }
+      ];
+    }
+
+    function saveRooms() {
+      localStorage.setItem('hotel_rooms_data', JSON.stringify(roomsData));
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('roomsGrid');
+      if (!grid) return;
+      let html = '';
+      for (let i = 0; i < roomsData.length; i++) {
+        const r = roomsData[i];
+        html += '<div class="room-card">';
+        html += '<img src="' + (r.image || 'https://placehold.co/400x300') + '" class="room-image" onerror="this.src=\'https://placehold.co/400x300\'">';
+        html += '<div class="room-info">';
+        html += '<span class="room-number" data-room-index="' + i + '">' + escapeHtml(r.number) + '</span>';
+        html += '<span class="room-type">' + escapeHtml(r.type) + '</span>';
+        html += '</div></div>';
+      }
+      grid.innerHTML = html;
+
+      document.querySelectorAll('.room-number').forEach(el => {
+        el.addEventListener('click', (e) => {
+          const idx = parseInt(el.getAttribute('data-room-index'));
+          openEditPanel(idx);
+        });
+      });
+    }
+
+    let currentEditIndex = null;
+    let editImages = [];
+    let editSelectedAmenities = [];
+    let editIsMattressFree = false;
+
+    function openEditPanel(index) {
+      currentEditIndex = index;
+      const room = roomsData[index];
+
+      document.getElementById('editRoomNumber').value = room.number;
+      document.getElementById('editRoomType').value = room.type;
+      document.getElementById('editGwPrice').value = room.gwPrice;
+      document.getElementById('editRegularPrice').value = room.regularPrice || '';
+      document.getElementById('editOfferPrice').value = room.offerPrice || '';
+      document.getElementById('editCapacity').value = room.capacity;
+      document.getElementById('editMattressCount').value = room.mattressCount || 0;
+      document.getElementById('editDescription').value = room.description || '';
+
+      editIsMattressFree = room.mattressFree || false;
+      const mattressPriceRow = document.getElementById('editMattressPriceRow');
+      const mattressCount = room.mattressCount || 0;
+      
+      if (mattressCount > 0) {
+        mattressPriceRow.style.display = 'block';
+        document.getElementById('editMattressPrice').value = room.mattressPrice !== null ? room.mattressPrice : '';
+        const freeBtn = document.getElementById('editFreeMattressBtn');
+        if (editIsMattressFree) {
+          freeBtn.classList.add('free-active');
+          freeBtn.textContent = '✓ Free';
+          document.getElementById('editMattressPrice').disabled = true;
+          document.getElementById('editMattressPrice').style.background = '#f1f5f9';
+        } else {
+          freeBtn.classList.remove('free-active');
+          freeBtn.textContent = 'Free';
+          document.getElementById('editMattressPrice').disabled = false;
+          document.getElementById('editMattressPrice').style.background = 'white';
+        }
+      } else {
+        mattressPriceRow.style.display = 'none';
+      }
+
+      editSelectedAmenities = [...(room.amenities || [])];
+      document.querySelectorAll('.edit-amenity-btn').forEach(btn => {
+        const amenity = btn.getAttribute('data-amenity');
+        if (editSelectedAmenities.includes(amenity)) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      editImages = [];
+      if (room.images && Array.isArray(room.images)) {
+        editImages = room.images.map(img => ({ url: img.url || img, file: null }));
+      } else if (room.image) {
+        editImages = [{ url: room.image, file: null }];
+      }
+      renderEditImages();
+
+      document.getElementById('roomsContainer').style.display = 'none';
+      document.getElementById('editPanel').style.display = 'block';
+    }
+
+    function closeEditPanel() {
+      document.getElementById('editPanel').style.display = 'none';
+      document.getElementById('roomsContainer').style.display = 'block';
+      currentEditIndex = null;
+      editImages = [];
+    }
+
+    function renderEditImages() {
+      const grid = document.getElementById('editImageGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      editImages.forEach((img, idx) => {
+        const card = document.createElement('div');
+        card.style.cssText = 'width: 85px; height: 85px; border-radius: 12px; border: 1px solid #e2e8f0; position: relative; overflow: hidden; background: #f8fafc; flex-shrink: 0;';
+        const imgEl = document.createElement('img');
+        imgEl.src = img.url;
+        imgEl.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '✕';
+        removeBtn.style.cssText = 'position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.65); color: white; border: none; border-radius: 20px; width: 24px; height: 24px; font-size: 13px; cursor: pointer;';
+        removeBtn.onclick = () => {
+          if (img.url && img.url.startsWith('blob:')) URL.revokeObjectURL(img.url);
+          editImages.splice(idx, 1);
+          renderEditImages();
+        };
+        card.appendChild(imgEl);
+        card.appendChild(removeBtn);
+        grid.appendChild(card);
+      });
+
+      if (editImages.length < 6) {
+        const plusBtn = document.createElement('div');
+        plusBtn.textContent = '+';
+        plusBtn.style.cssText = 'width: 85px; height: 85px; border-radius: 12px; border: 2px dashed #cbd5e1; background: #fefce8; display: flex; align-items: center; justify-content: center; font-size: 36px; color: #64748b; cursor: pointer; flex-shrink: 0;';
+        plusBtn.onclick = () => document.getElementById('editFileInput').click();
+        grid.appendChild(plusBtn);
+      }
+    }
+
+    function validatePrices(regular, offer, gw) {
+      if (offer && offer <= gw) {
+        alert('Offer price must be greater than GW price');
+        return false;
+      }
+      if (offer && offer >= regular) {
+        alert('Offer price must be less than Regular price');
+        return false;
+      }
+      if (regular <= gw) {
+        alert('Regular price must be greater than GW price');
+        return false;
+      }
+      return true;
+    }
+
+    function saveEditRoom() {
+      if (currentEditIndex === null) return;
+
+      const room = roomsData[currentEditIndex];
+      
+      const regularPrice = parseFloat(document.getElementById('editRegularPrice').value);
+      const offerPrice = document.getElementById('editOfferPrice').value ? parseFloat(document.getElementById('editOfferPrice').value) : null;
+      const gwPrice = room.gwPrice;
+      
+      if (!validatePrices(regularPrice, offerPrice, gwPrice)) {
+        return;
+      }
+      
+      room.type = document.getElementById('editRoomType').value;
+      room.regularPrice = regularPrice;
+      room.offerPrice = offerPrice;
+      room.capacity = parseInt(document.getElementById('editCapacity').value);
+      room.mattressCount = parseInt(document.getElementById('editMattressCount').value) || 0;
+      room.description = document.getElementById('editDescription').value;
+      room.amenities = [...editSelectedAmenities];
+
+      if (room.mattressCount > 0) {
+        if (editIsMattressFree) {
+          room.mattressPrice = 0;
+          room.mattressFree = true;
+        } else {
+          room.mattressPrice = parseFloat(document.getElementById('editMattressPrice').value);
+          room.mattressFree = false;
+        }
+      } else {
+        room.mattressPrice = null;
+        room.mattressFree = false;
+      }
+
+      if (editImages.length > 0) {
+        room.images = editImages.map(img => ({ url: img.url }));
+        room.image = editImages[0].url;
+      }
+
+      saveRooms();
+      renderGrid();
+      closeEditPanel();
+    }
+
+    document.getElementById('editForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      saveEditRoom();
+    });
+
+    document.getElementById('closeEditBtn').addEventListener('click', closeEditPanel);
+    document.getElementById('cancelEditBtn').addEventListener('click', closeEditPanel);
+
+    document.getElementById('editMattressCount').addEventListener('input', function() {
+      const count = parseInt(this.value) || 0;
+      const row = document.getElementById('editMattressPriceRow');
+      if (count > 0) {
+        row.style.display = 'block';
+      } else {
+        row.style.display = 'none';
+        editIsMattressFree = false;
+        const freeBtn = document.getElementById('editFreeMattressBtn');
+        freeBtn.classList.remove('free-active');
+        freeBtn.textContent = 'Free';
+      }
+    });
+
+    document.getElementById('editFreeMattressBtn').addEventListener('click', function() {
+      const mattressPriceInput = document.getElementById('editMattressPrice');
+      if (!editIsMattressFree) {
+        editIsMattressFree = true;
+        this.classList.add('free-active');
+        this.textContent = '✓ Free';
+        mattressPriceInput.value = '0';
+        mattressPriceInput.disabled = true;
+        mattressPriceInput.style.background = '#f1f5f9';
+      } else {
+        editIsMattressFree = false;
+        this.classList.remove('free-active');
+        this.textContent = 'Free';
+        mattressPriceInput.value = '';
+        mattressPriceInput.disabled = false;
+        mattressPriceInput.style.background = 'white';
+      }
+    });
+
+    document.querySelectorAll('.edit-amenity-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const amenity = btn.getAttribute('data-amenity');
+        if (btn.classList.contains('active')) {
+          btn.classList.remove('active');
+          editSelectedAmenities = editSelectedAmenities.filter(a => a !== amenity);
+        } else {
+          btn.classList.add('active');
+          editSelectedAmenities.push(amenity);
+        }
+      });
+    });
+
+    const editFileInput = document.getElementById('editFileInput');
+    editFileInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      for (let file of files) {
+        if (editImages.length >= 6) {
+          alert('Maximum 6 images allowed');
+          break;
+        }
+        if (!file.type.startsWith('image/')) continue;
+        const url = URL.createObjectURL(file);
+        editImages.push({ url, file });
+      }
+      renderEditImages();
+      editFileInput.value = '';
+    });
+
+    loadRooms();
+    renderGrid();
+  })();
+</script>

@@ -1,0 +1,136 @@
+<div style="max-width: 100%; background: white;">
+  <!-- Notification Toast -->
+  <div id="notificationToast" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #0f172a; color: white; padding: 10px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; box-shadow: 0 8px 20px rgba(0,0,0,0.15); z-index: 9999; transition: transform 0.2s ease; pointer-events: none; max-width: 85vw; text-align: center; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+
+  <!-- Page Header - padding left/right 0 -->
+  <div style="padding: 16px 0 0 0;">
+    <label style="display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: #334155;">SELECT AMENITIES</label>
+    <div style="font-size: 0.7rem; color: #64748b; margin-bottom: 12px;">Tick all amenities available at your hotel</div>
+  </div>
+
+  <!-- Amenities Grid - padding left/right 0 -->
+  <div style="padding: 8px 0 20px 0;">
+    <div id="amenitiesGrid" style="display: flex; flex-wrap: wrap; gap: 12px; margin: 0;">
+      <!-- Amenities will be populated here -->
+    </div>
+  </div>
+
+  <!-- Save Button - padding left/right 0 AND NO border-top -->
+  <div style="padding: 8px 0 20px 0;">
+    <button id="saveAmenitiesBtn" style="width: 100%; background: #0f172a; color: white; border: none; padding: 14px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">+ SAVE SELECTED AMENITIES</button>
+  </div>
+</div>
+
+<style>
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .amenity-btn {
+    padding: 10px 20px;
+    border-radius: 14px;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: #1e293b;
+    flex: 0 0 auto;
+  }
+  
+  .amenity-btn.active {
+    background: #0f172a;
+    border-color: #0f172a;
+    color: white;
+  }
+  
+  .amenity-btn:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+  }
+  
+  .amenity-btn.active:hover {
+    background: #1e293b;
+    border-color: #1e293b;
+  }
+  
+  @media (min-width: 768px) {
+    .amenity-btn {
+      padding: 10px 24px;
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .amenity-btn {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      border-radius: 12px;
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    const ALL_AMENITIES = [
+      "Wi-Fi", "Air Conditioning", "Breakfast", "Parking", "Swimming Pool",
+      "Gym", "Spa", "Sea View", "Kitchen", "Pet Friendly", "Room Service",
+      "TV", "Mini Bar", "Coffee Machine", "Work Desk", "Iron", "Hair Dryer",
+      "Safe Box", "Balcony", "Soundproof", "Elevator Access", "Wheelchair Access",
+      "Baby Cot", "Laundry Service", "Airport Shuttle"
+    ];
+
+    let selectedAmenities = [];
+    const amenitiesGrid = document.getElementById('amenitiesGrid');
+    const saveBtn = document.getElementById('saveAmenitiesBtn');
+    const notificationToast = document.getElementById('notificationToast');
+    let notificationTimeout = null;
+
+    function showNotification(message, isSuccess = true) {
+      if (notificationTimeout) clearTimeout(notificationTimeout);
+      notificationToast.textContent = message;
+      notificationToast.style.background = isSuccess ? '#0f172a' : '#dc2626';
+      notificationToast.style.transform = 'translateX(-50%) translateY(0)';
+      notificationTimeout = setTimeout(() => {
+        notificationToast.style.transform = 'translateX(-50%) translateY(-100px)';
+      }, 2000);
+    }
+
+    function renderAmenities() {
+      amenitiesGrid.innerHTML = "";
+      ALL_AMENITIES.forEach(amenity => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'amenity-btn';
+        if (selectedAmenities.includes(amenity)) button.classList.add('active');
+        button.textContent = amenity;
+        button.addEventListener('click', () => {
+          if (selectedAmenities.includes(amenity)) {
+            selectedAmenities = selectedAmenities.filter(a => a !== amenity);
+            button.classList.remove('active');
+          } else {
+            selectedAmenities.push(amenity);
+            button.classList.add('active');
+          }
+        });
+        amenitiesGrid.appendChild(button);
+      });
+    }
+
+    saveBtn.addEventListener('click', () => {
+      if (selectedAmenities.length === 0) {
+        showNotification("Please select at least one amenity", false);
+        return;
+      }
+      console.log("Saved Amenities:", selectedAmenities);
+      showNotification(`✓ ${selectedAmenities.length} amenities saved`);
+    });
+
+    renderAmenities();
+  })();
+</script>

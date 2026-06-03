@@ -1,0 +1,529 @@
+<div style="max-width: 100%; background: white; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0;">
+  <!-- Notification Toast -->
+  <div id="bookingNotificationToast" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #0f172a; color: white; padding: 10px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; box-shadow: 0 8px 20px rgba(0,0,0,0.15); z-index: 9999; transition: transform 0.2s ease; pointer-events: none; max-width: 85vw; text-align: center; line-height: 1.3;"></div>
+
+  <!-- STEP 1: ROOM SELECTION (LANDING PAGE) - 2x2 Grid -->
+  <div id="roomSelectionScreen" style="display: block; margin: 0; padding: 0;">
+    <div id="roomListGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0; margin: 0;"></div>
+  </div>
+
+  <!-- STEP 2: GUEST SEARCH & DETAILS (after room selected) -->
+  <div id="guestDetailsScreen" style="display: none; margin: 0; padding: 0;">
+    <div style="padding: 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; margin: 0;">
+      <div style="font-size: 0.7rem; font-weight: 600; color: #64748b; margin-bottom: 4px;">SELECTED ROOM</div>
+      <div id="selectedRoomInfo" style="font-size: 0.9rem; font-weight: 600; color: #0f172a;"></div>
+    </div>
+
+    <div style="padding: 12px; border-bottom: 1px solid #eef2f6; margin: 0;">
+      <label style="display: block; margin-bottom: 6px; font-size: 0.7rem; font-weight: 600; color: #334155;">SEARCH GUEST BY PHONE</label>
+      <div style="display: flex; gap: 8px;">
+        <input type="tel" id="guestPhoneSearch" placeholder="10 digit mobile" autocomplete="off" maxlength="10" style="flex: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; background: white;">
+        <button id="searchGuestBtn2" style="padding: 12px 16px; background: #0f172a; color: white; border: none; border-radius: 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Search</button>
+      </div>
+    </div>
+
+    <!-- Search Results -->
+    <div id="guestSearchResults" style="display: none; padding: 12px; border-bottom: 1px solid #eef2f6; margin: 0;">
+      <div style="font-size: 0.7rem; font-weight: 600; color: #475569; margin-bottom: 8px;">SELECT GUEST</div>
+      <div id="guestResultsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      <div id="noGuestFoundMsg" style="display: none; text-align: center; padding: 16px; color: #94a3b8; font-size: 0.8rem;">
+        No guest found. <button id="showAddGuestBtn" style="background: #0f172a; color: white; border: none; padding: 6px 14px; border-radius: 30px; cursor: pointer; margin-left: 8px; font-size: 0.75rem;">Add New</button>
+      </div>
+    </div>
+
+    <!-- Guest Details Form -->
+    <div id="guestFormContainer" style="display: none; padding: 12px; margin: 0;">
+      <div style="font-size: 0.8rem; font-weight: 600; color: #0f172a; margin-bottom: 12px;">GUEST DETAILS</div>
+      
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <div style="flex: 2;">
+          <input type="text" id="guestFirstName" placeholder="First name *" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem;">
+        </div>
+        <div style="flex: 1;">
+          <input type="text" id="guestMiddleName" placeholder="Middle" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem;">
+        </div>
+        <div style="flex: 2;">
+          <input type="text" id="guestLastName" placeholder="Last name *" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem;">
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 12px;">
+        <input type="tel" id="guestPhoneNumber" readonly style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem; background: #f8fafc;">
+      </div>
+      
+      <div style="margin-bottom: 12px;">
+        <input type="email" id="guestEmailId" placeholder="Email *" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem;">
+      </div>
+      
+      <div style="margin-bottom: 12px;">
+        <textarea id="guestFullAddress" rows="2" placeholder="Address *" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem; font-family: inherit; resize: vertical;"></textarea>
+      </div>
+      
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <div style="flex: 1;">
+          <select id="guestIdTypeSelect" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem;">
+            <option value="">ID Type *</option>
+            <option value="Aadhar Card">Aadhar Card</option>
+            <option value="Pan Card">Pan Card</option>
+            <option value="Driving License">Driving License</option>
+            <option value="Passport">Passport</option>
+          </select>
+        </div>
+        <div style="flex: 1;">
+          <input type="text" id="guestIdNumberValue" placeholder="ID Number *" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem;">
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 10px; margin-top: 4px;">
+        <button id="saveGuestAndContinueBtn" style="flex: 1; padding: 12px; background: #0f172a; color: white; border: none; border-radius: 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">Continue</button>
+        <button id="cancelGuestFormBtn" style="flex: 1; padding: 12px; background: #f1f5f9; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; cursor: pointer;">Back</button>
+      </div>
+    </div>
+
+    <!-- Booking Details Form -->
+    <div id="bookingDetailsContainer" style="display: none; padding: 12px; margin: 0;">
+      <div style="font-size: 0.8rem; font-weight: 600; color: #0f172a; margin-bottom: 12px;">BOOKING DETAILS</div>
+      
+      <div style="background: #f8fafc; padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+        <div style="font-size: 0.7rem; color: #64748b;">GUEST</div>
+        <div id="bookingGuestName" style="font-weight: 600; font-size: 0.85rem;"></div>
+        <div id="bookingGuestPhone" style="font-size: 0.7rem; color: #64748b;"></div>
+      </div>
+      
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <div style="flex: 1;">
+          <label style="display: block; font-size: 0.65rem; font-weight: 600; color: #334155; margin-bottom: 4px;">CHECK-IN</label>
+          <input type="date" id="bookingCheckin" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem;">
+        </div>
+        <div style="flex: 1;">
+          <label style="display: block; font-size: 0.65rem; font-weight: 600; color: #334155; margin-bottom: 4px;">CHECK-OUT</label>
+          <input type="date" id="bookingCheckout" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem;">
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <div style="flex: 1;">
+          <label style="display: block; font-size: 0.65rem; font-weight: 600; color: #334155; margin-bottom: 4px;">ADULTS</label>
+          <input type="number" id="bookingAdults" min="1" value="1" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem;">
+        </div>
+        <div style="flex: 1;">
+          <label style="display: block; font-size: 0.65rem; font-weight: 600; color: #334155; margin-bottom: 4px;">CHILDREN</label>
+          <input type="number" id="bookingChildren" min="0" value="0" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem;">
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 12px;">
+        <textarea id="bookingRequests" rows="2" placeholder="Special requests" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem; font-family: inherit; resize: vertical;"></textarea>
+      </div>
+      
+      <div id="bookingPriceDisplay" style="background: #f1f5f9; padding: 10px; border-radius: 10px; margin-bottom: 16px; text-align: center; font-weight: 600; font-size: 0.85rem; color: #0f172a;"></div>
+      
+      <div style="display: flex; gap: 10px;">
+        <button id="backToGuestBtn" style="flex: 1; padding: 12px; background: #f1f5f9; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; cursor: pointer;">Back</button>
+        <button id="finalConfirmBookingBtn" style="flex: 1; padding: 12px; background: #0f172a; color: white; border: none; border-radius: 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
+  }
+  .room-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .room-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    border-color: #cbd5e1;
+  }
+  .room-image {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    background: #e2e8f0;
+  }
+  .room-info {
+    padding: 10px;
+  }
+  .room-name-number {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .room-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  .room-number {
+    font-size: 0.65rem;
+    color: #64748b;
+  }
+  .room-price-capacity {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .room-price {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #166534;
+  }
+  .room-capacity {
+    font-size: 0.65rem;
+    color: #64748b;
+  }
+  .guest-result-item {
+    padding: 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .guest-result-item:hover {
+    background: #f8fafc;
+  }
+  .guest-avatar {
+    width: 42px;
+    height: 42px;
+    background: #0f172a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .guest-info {
+    flex: 1;
+  }
+  .guest-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #0f172a;
+  }
+  .guest-phone {
+    font-size: 0.65rem;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .guest-id {
+    font-size: 0.6rem;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  @media (max-width: 480px) {
+    .room-image { height: 110px; }
+    .room-name { font-size: 0.75rem; }
+    .room-price { font-size: 0.7rem; }
+  }
+</style>
+
+<script>
+  (function() {
+    const roomsList = [
+      { id: 1, name: "Deluxe Room", number: "101", type: "Deluxe", capacity: 2, priceOffer: "3999", priceRegular: "4500", image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400&h=300&fit=crop" },
+      { id: 2, name: "Suite Room", number: "201", type: "Suite", capacity: 4, priceOffer: "7999", priceRegular: "9000", image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop" },
+      { id: 3, name: "Standard Room", number: "301", type: "Standard", capacity: 2, priceOffer: "2499", priceRegular: "2800", image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=400&h=300&fit=crop" },
+      { id: 4, name: "Family Suite", number: "401", type: "Suite", capacity: 5, priceOffer: "9999", priceRegular: "11000", image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=300&fit=crop" }
+    ];
+    
+    let guestsDatabase = [
+      { id: 1, firstName: "Rajesh", middleName: "", lastName: "Kumar", phone: "9876543210", email: "rajesh@example.com", address: "123 Main St, Delhi", idType: "Aadhar Card", idNumber: "1234-5678-9012" }
+    ];
+    
+    function getInitials(first, last) {
+      return ((first?.charAt(0) || '') + (last?.charAt(0) || '')).toUpperCase() || 'G';
+    }
+    
+    function maskIdNumber(idNumber, idType) {
+      if (!idNumber) return '';
+      if (idType === 'Aadhar Card' && idNumber.length >= 8) return 'XXXX-XXXX-' + idNumber.slice(-4);
+      if (idNumber.length >= 4) return 'XXXX' + idNumber.slice(-4);
+      return 'XXXX';
+    }
+    
+    function isValidEmail(email) {
+      return /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/.test(email);
+    }
+    
+    function isValidPhone(phone) {
+      return /^[0-9]{10}$/.test(phone);
+    }
+    
+    let selectedRoom = null;
+    let currentGuest = null;
+    let notificationTimeout = null;
+    
+    const notificationToast = document.getElementById('bookingNotificationToast');
+    const roomScreen = document.getElementById('roomSelectionScreen');
+    const guestScreen = document.getElementById('guestDetailsScreen');
+    const roomGrid = document.getElementById('roomListGrid');
+    const selectedRoomInfo = document.getElementById('selectedRoomInfo');
+    const guestSearchResults = document.getElementById('guestSearchResults');
+    const guestResultsList = document.getElementById('guestResultsList');
+    const noGuestFoundMsg = document.getElementById('noGuestFoundMsg');
+    const guestFormContainer = document.getElementById('guestFormContainer');
+    const bookingDetailsContainer = document.getElementById('bookingDetailsContainer');
+    
+    function showNotification(message) {
+      if (notificationTimeout) clearTimeout(notificationTimeout);
+      notificationToast.textContent = message;
+      notificationToast.style.transform = 'translateX(-50%) translateY(0)';
+      notificationTimeout = setTimeout(() => {
+        notificationToast.style.transform = 'translateX(-50%) translateY(-100px)';
+      }, 2000);
+    }
+    
+    function renderRooms() {
+      roomGrid.innerHTML = '';
+      roomsList.forEach(room => {
+        const card = document.createElement('div');
+        card.className = 'room-card';
+        card.innerHTML = `
+          <img class="room-image" src="${room.image}" onerror="this.src='https://placehold.co/400x300/e2e8f0/64748b?text=Room'">
+          <div class="room-info">
+            <div class="room-name-number">
+              <span class="room-name">${escapeHtml(room.name)}</span>
+              <span class="room-number">#${room.number}</span>
+            </div>
+            <div class="room-price-capacity">
+              <span class="room-price">₹${room.priceOffer}/night</span>
+              <span class="room-capacity">👥 ${room.capacity}</span>
+            </div>
+          </div>
+        `;
+        card.onclick = () => selectRoom(room);
+        roomGrid.appendChild(card);
+      });
+    }
+    
+    function selectRoom(room) {
+      selectedRoom = room;
+      selectedRoomInfo.innerHTML = `${escapeHtml(room.name)} (#${room.number}) | ₹${room.priceOffer}/night`;
+      roomScreen.style.display = 'none';
+      guestScreen.style.display = 'block';
+      resetGuestSection();
+    }
+    
+    function resetGuestSection() {
+      document.getElementById('guestPhoneSearch').value = '';
+      guestSearchResults.style.display = 'none';
+      guestFormContainer.style.display = 'none';
+      bookingDetailsContainer.style.display = 'none';
+      guestResultsList.innerHTML = '';
+    }
+    
+    function searchGuestByPhone() {
+      const phone = document.getElementById('guestPhoneSearch').value.trim();
+      if (!phone) { showNotification('Enter phone number'); return; }
+      if (!isValidPhone(phone)) { showNotification('Enter valid 10 digit number'); return; }
+      
+      const found = guestsDatabase.find(g => g.phone === phone);
+      if (found) {
+        const fullName = `${found.firstName} ${found.middleName} ${found.lastName}`.trim();
+        const initials = getInitials(found.firstName, found.lastName);
+        const maskedId = maskIdNumber(found.idNumber, found.idType);
+        
+        guestResultsList.innerHTML = `<div class="guest-result-item" data-id="${found.id}">
+          <div class="guest-avatar">${escapeHtml(initials)}</div>
+          <div class="guest-info">
+            <div class="guest-name">${escapeHtml(fullName)}</div>
+            <div class="guest-phone">${escapeHtml(found.phone)}</div>
+            <div class="guest-id">${escapeHtml(found.idType)}: ${escapeHtml(maskedId)}</div>
+          </div>
+        </div>`;
+        document.querySelector('.guest-result-item').onclick = () => showGuestForm(found);
+        guestSearchResults.style.display = 'block';
+        noGuestFoundMsg.style.display = 'none';
+        guestFormContainer.style.display = 'none';
+      } else {
+        guestSearchResults.style.display = 'block';
+        guestResultsList.innerHTML = '';
+        noGuestFoundMsg.style.display = 'block';
+        guestFormContainer.style.display = 'none';
+      }
+    }
+    
+    function showGuestForm(guest = null) {
+      if (guest) {
+        currentGuest = guest;
+        document.getElementById('guestFirstName').value = guest.firstName;
+        document.getElementById('guestMiddleName').value = guest.middleName || '';
+        document.getElementById('guestLastName').value = guest.lastName;
+        document.getElementById('guestPhoneNumber').value = guest.phone;
+        document.getElementById('guestEmailId').value = guest.email || '';
+        document.getElementById('guestFullAddress').value = guest.address || '';
+        document.getElementById('guestIdTypeSelect').value = guest.idType || '';
+        document.getElementById('guestIdNumberValue').value = guest.idNumber || '';
+      } else {
+        document.getElementById('guestFirstName').value = '';
+        document.getElementById('guestMiddleName').value = '';
+        document.getElementById('guestLastName').value = '';
+        document.getElementById('guestPhoneNumber').value = document.getElementById('guestPhoneSearch').value.trim();
+        document.getElementById('guestEmailId').value = '';
+        document.getElementById('guestFullAddress').value = '';
+        document.getElementById('guestIdTypeSelect').value = '';
+        document.getElementById('guestIdNumberValue').value = '';
+        currentGuest = null;
+      }
+      guestSearchResults.style.display = 'none';
+      guestFormContainer.style.display = 'block';
+      bookingDetailsContainer.style.display = 'none';
+    }
+    
+    function saveGuestAndGoToBooking() {
+      const firstName = document.getElementById('guestFirstName').value.trim();
+      const middleName = document.getElementById('guestMiddleName').value.trim();
+      const lastName = document.getElementById('guestLastName').value.trim();
+      const phone = document.getElementById('guestPhoneNumber').value.trim();
+      const email = document.getElementById('guestEmailId').value.trim();
+      const address = document.getElementById('guestFullAddress').value.trim();
+      const idType = document.getElementById('guestIdTypeSelect').value;
+      const idNumber = document.getElementById('guestIdNumberValue').value.trim();
+      
+      if (!firstName) { showNotification('Enter first name'); return; }
+      if (!lastName) { showNotification('Enter last name'); return; }
+      if (!isValidPhone(phone)) { showNotification('Enter valid 10 digit phone'); return; }
+      if (!email) { showNotification('Email required'); return; }
+      if (!isValidEmail(email)) { showNotification('Enter valid email'); return; }
+      if (!address) { showNotification('Enter address'); return; }
+      if (!idType) { showNotification('Select ID type'); return; }
+      if (!idNumber) { showNotification('Enter ID number'); return; }
+      
+      if (currentGuest) {
+        currentGuest.firstName = firstName;
+        currentGuest.middleName = middleName;
+        currentGuest.lastName = lastName;
+        currentGuest.email = email;
+        currentGuest.address = address;
+        currentGuest.idType = idType;
+        currentGuest.idNumber = idNumber;
+      } else {
+        const existing = guestsDatabase.find(g => g.phone === phone);
+        if (existing) {
+          currentGuest = existing;
+          currentGuest.firstName = firstName;
+          currentGuest.middleName = middleName;
+          currentGuest.lastName = lastName;
+          currentGuest.email = email;
+          currentGuest.address = address;
+          currentGuest.idType = idType;
+          currentGuest.idNumber = idNumber;
+        } else {
+          currentGuest = { id: Date.now(), firstName, middleName, lastName, phone, email, address, idType, idNumber };
+          guestsDatabase.push(currentGuest);
+        }
+      }
+      
+      const fullName = `${firstName} ${middleName} ${lastName}`.trim();
+      document.getElementById('bookingGuestName').innerHTML = escapeHtml(fullName);
+      document.getElementById('bookingGuestPhone').innerHTML = currentGuest.phone;
+      
+      const today = new Date().toISOString().split('T')[0];
+      const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('bookingCheckin').value = today;
+      document.getElementById('bookingCheckout').value = tomorrow.toISOString().split('T')[0];
+      document.getElementById('bookingCheckin').min = today;
+      document.getElementById('bookingAdults').value = '1';
+      document.getElementById('bookingChildren').value = '0';
+      document.getElementById('bookingRequests').value = '';
+      
+      updateBookingPrice();
+      guestFormContainer.style.display = 'none';
+      bookingDetailsContainer.style.display = 'block';
+    }
+    
+    function updateBookingPrice() {
+      const checkin = document.getElementById('bookingCheckin').value;
+      const checkout = document.getElementById('bookingCheckout').value;
+      if (checkin && checkout && selectedRoom) {
+        const nights = Math.max(1, Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)));
+        const price = parseInt(selectedRoom.priceOffer);
+        const total = nights * price;
+        document.getElementById('bookingPriceDisplay').innerHTML = `Total: ₹${total.toLocaleString()} (${nights} nights × ₹${price})`;
+      }
+    }
+    
+    function confirmBooking() {
+      const checkin = document.getElementById('bookingCheckin').value;
+      const checkout = document.getElementById('bookingCheckout').value;
+      const adults = parseInt(document.getElementById('bookingAdults').value) || 1;
+      
+      if (!checkin || !checkout) { showNotification('Select dates'); return; }
+      if (adults < 1) { showNotification('At least 1 adult'); return; }
+      
+      const nights = Math.max(1, Math.ceil((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)));
+      const total = nights * parseInt(selectedRoom.priceOffer);
+      const bookingId = 'BK' + Date.now().toString().slice(-8);
+      
+      showNotification(`Booking confirmed! ID: ${bookingId}`);
+      
+      setTimeout(() => {
+        roomScreen.style.display = 'block';
+        guestScreen.style.display = 'none';
+        selectedRoom = null;
+        currentGuest = null;
+        resetGuestSection();
+      }, 1500);
+    }
+    
+    document.getElementById('searchGuestBtn2').onclick = searchGuestByPhone;
+    document.getElementById('guestPhoneSearch').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchGuestByPhone(); });
+    document.getElementById('showAddGuestBtn').onclick = () => showGuestForm(null);
+    document.getElementById('saveGuestAndContinueBtn').onclick = saveGuestAndGoToBooking;
+    document.getElementById('cancelGuestFormBtn').onclick = () => {
+      guestFormContainer.style.display = 'none';
+      guestSearchResults.style.display = 'none';
+      document.getElementById('guestPhoneSearch').value = '';
+    };
+    document.getElementById('backToGuestBtn').onclick = () => {
+      bookingDetailsContainer.style.display = 'none';
+      guestSearchResults.style.display = 'none';
+      guestFormContainer.style.display = 'block';
+    };
+    document.getElementById('finalConfirmBookingBtn').onclick = confirmBooking;
+    document.getElementById('bookingCheckin').onchange = function() {
+      const checkout = document.getElementById('bookingCheckout');
+      if (checkout.value <= this.value) {
+        const newDate = new Date(this.value);
+        newDate.setDate(newDate.getDate() + 1);
+        checkout.value = newDate.toISOString().split('T')[0];
+      }
+      checkout.min = this.value;
+      updateBookingPrice();
+    };
+    document.getElementById('bookingCheckout').onchange = updateBookingPrice;
+    
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+    
+    renderRooms();
+  })();
+</script>
