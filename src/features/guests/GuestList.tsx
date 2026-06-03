@@ -16,6 +16,17 @@ export default function GuestList() {
   // Actions modal
   const [activeGuest, setActiveGuest] = useState<Guest | null>(null);
   const [confirmingAction, setConfirmingAction] = useState<'checkin' | 'cancel' | null>(null);
+  const [selectedRoomForCheckin, setSelectedRoomForCheckin] = useState<string>('');
+
+  // Add Guest Modal
+  const [addGuestModalOpen, setAddGuestModalOpen] = useState(false);
+  const [newGuestData, setNewGuestData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    idNumber: '',
+    roomAssigned: '',
+  });
 
   useEffect(() => {
     setTitle('Guest List');
@@ -55,22 +66,28 @@ export default function GuestList() {
   };
 
   const handleCheckIn = async (guest: Guest) => {
-    const room = getGuestRoom(guest);
+    let room = getGuestRoom(guest);
+
+    if (!room && selectedRoomForCheckin) {
+      room = rooms.find(r => r._id === selectedRoomForCheckin) as any;
+    }
+
     if (!room) {
-      showToast('No room assigned to this guest.', 'error');
+      showToast('Please select a room to assign to this guest.', 'error');
       return;
     }
 
     try {
       setLoading(true);
-      // 1. Update guest status to Checked-In
-      await api.updateGuest(guest._id!, { status: 'Checked-In' });
+      // 1. Update guest status to Checked-In and assign room if needed
+      await api.updateGuest(guest._id!, { status: 'Checked-In', roomAssigned: room._id });
       // 2. Mark Room as Occupied
       await api.updateRoom(room._id!, { status: 'Occupied' });
 
       showToast(`${guest.name} checked in successfully!`, 'success');
       setActiveGuest(null);
       setConfirmingAction(null);
+      setSelectedRoomForCheckin('');
       loadData();
     } catch (err: any) {
       showToast(err.message || 'Check-in action failed', 'error');
@@ -109,8 +126,48 @@ export default function GuestList() {
     }
   };
 
+  const handleAddGuest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newGuestData.name || !newGuestData.phone) {
+      showToast('Name and Phone are required', 'error');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const payload: Partial<Guest> = {
+        name: newGuestData.name,
+        phone: newGuestData.phone,
+        email: newGuestData.email,
+        idNumber: newGuestData.idNumber || 'PENDING',
+        status: newGuestData.roomAssigned ? 'Checked-In' : 'Reserved',
+      };
+      
+      if (newGuestData.roomAssigned) {
+         payload.roomAssigned = newGuestData.roomAssigned;
+      }
+
+      await api.createGuest(payload);
+
+      if (newGuestData.roomAssigned) {
+         await api.updateRoom(newGuestData.roomAssigned, { status: 'Occupied' });
+      }
+
+      showToast(`Guest ${payload.name} added successfully!`, 'success');
+      setAddGuestModalOpen(false);
+      setNewGuestData({ name: '', phone: '', email: '', idNumber: '', roomAssigned: '' });
+      loadData();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to add guest', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Filter guests
   const filteredGuests = guests.filter(guest => {
+    if (guest.isVendor) return false;
+    
     const q = searchQuery.toLowerCase().trim();
     if (!q) return true;
     const room = getGuestRoom(guest);
@@ -156,12 +213,20 @@ export default function GuestList() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="flex-1 min-w-0 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-amber-500"
         />
-        <button
-          onClick={loadData}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-900 text-white font-bold text-sm rounded-xl cursor-pointer hover:bg-slate-800 transition-colors flex-shrink-0"
-        >
-          Refresh
-        </button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button
+            onClick={loadData}
+            className="flex-1 sm:flex-none px-6 py-3 bg-slate-100 text-slate-800 font-bold text-sm rounded-xl cursor-pointer hover:bg-slate-200 transition-colors"
+          >
+            Refresh
+          </button>
+          <button
+            onClick={() => setAddGuestModalOpen(true)}
+            className="flex-1 sm:flex-none px-6 py-3 bg-slate-900 text-white font-bold text-sm rounded-xl cursor-pointer hover:bg-slate-800 transition-colors shadow-md"
+          >
+            + Add Guest
+          </button>
+        </div>
       </div>
 
       {/* Guest Directory Cards Grid */}
@@ -266,13 +331,34 @@ export default function GuestList() {
               <div className="space-y-4 text-center">
                 <p className="text-xs font-medium text-slate-600">
                   {confirmingAction === 'checkin'
-                    ? `Are you sure you want to Check-in ${activeGuest.name}?`
-                    : `This will remove the guest and release Room ${getGuestRoom(activeGuest)?.roomNumber}. Proceed?`
+                    ? (getGuestRoom(activeGuest) 
+                        ? `Are you sure you want to Check-in ${activeGuest.name} to Room ${getGuestRoom(activeGuest)?.roomNumber}?`
+                        : `Please assign a room to check-in ${activeGuest.name}.`)
+                    : `This will remove the guest and release Room ${getGuestRoom(activeGuest)?.roomNumber || 'N/A'}. Proceed?`
                   }
                 </p>
-                <div className="grid grid-cols-2 gap-3">
+                
+                {confirmingAction === 'checkin' && !getGuestRoom(activeGuest) && (
+                  <div className="text-left space-y-1 mb-3">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Select Available Room</label>
+                    <select
+                      value={selectedRoomForCheckin}
+                      onChange={(e) => setSelectedRoomForCheckin(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm focus:outline-amber-500"
+                    >
+                      <option value="">-- Choose Room --</option>
+                      {rooms.filter(r => r.status === 'Available').map(room => (
+                        <option key={room._id} value={room._id}>
+                          Room {room.roomNumber} ({room.type}) - ₹{room.price}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-3 mt-4">
                   <button
-                    onClick={() => setConfirmingAction(null)}
+                    onClick={() => { setConfirmingAction(null); setSelectedRoomForCheckin(''); }}
                     className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
                   >
                     Back
@@ -293,6 +379,112 @@ export default function GuestList() {
             >
               Close Menu
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Add Guest Modal */}
+      {addGuestModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm animate-fade-in p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh] overflow-hidden animate-slide-up">
+            <div className="flex justify-between items-center p-5 border-b border-slate-100">
+              <div>
+                <h3 className="text-lg font-black text-slate-800">Add New Guest</h3>
+                <p className="text-xs text-slate-500">Manually check-in a walk-in guest</p>
+              </div>
+              <button 
+                onClick={() => setAddGuestModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-600 cursor-pointer"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="p-5 overflow-y-auto custom-scrollbar">
+              <form id="add-guest-form" onSubmit={handleAddGuest} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Full Name *</label>
+                  <input
+                    type="text" required
+                    value={newGuestData.name}
+                    onChange={(e) => setNewGuestData({ ...newGuestData, name: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-amber-500"
+                    placeholder="e.g. John Doe"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Phone Number *</label>
+                    <input
+                      type="tel" required
+                      value={newGuestData.phone}
+                      onChange={(e) => setNewGuestData({ ...newGuestData, phone: e.target.value })}
+                      className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-amber-500"
+                      placeholder="+1 234..."
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Email (Optional)</label>
+                    <input
+                      type="email"
+                      value={newGuestData.email}
+                      onChange={(e) => setNewGuestData({ ...newGuestData, email: e.target.value })}
+                      className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-amber-500"
+                      placeholder="john@example.com"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">ID Number (Optional)</label>
+                  <input
+                    type="text"
+                    value={newGuestData.idNumber}
+                    onChange={(e) => setNewGuestData({ ...newGuestData, idNumber: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-amber-500"
+                    placeholder="Passport / National ID"
+                  />
+                </div>
+
+                <div className="space-y-1 pt-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Assign Room</label>
+                  <select
+                    value={newGuestData.roomAssigned}
+                    onChange={(e) => setNewGuestData({ ...newGuestData, roomAssigned: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm focus:outline-amber-500"
+                  >
+                    <option value="">-- No Room Assigned (Reservation) --</option>
+                    {rooms.filter(r => r.status === 'Available').map(room => (
+                      <option key={room._id} value={room._id}>
+                        Room {room.roomNumber} ({room.type}) - ₹{room.price}
+                      </option>
+                    ))}
+                  </select>
+                  {rooms.filter(r => r.status === 'Available').length === 0 && (
+                    <p className="text-[10px] text-amber-600 font-medium mt-1">Warning: No available rooms found.</p>
+                  )}
+                </div>
+              </form>
+            </div>
+            
+            <div className="p-5 border-t border-slate-100 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setAddGuestModalOpen(false)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="add-guest-form"
+                disabled={loading}
+                className="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {loading ? 'Adding...' : 'Add Guest'}
+              </button>
+            </div>
           </div>
         </div>
       )}
