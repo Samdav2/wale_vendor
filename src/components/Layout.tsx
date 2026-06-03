@@ -32,6 +32,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   // Global Auth & Role Guard
   const [userRole, setUserRole] = useState<string>('');
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPass, setLoginPass] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   React.useEffect(() => {
     setIsAuthorized(false); // Reset on path change
@@ -44,6 +49,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const sessionStr = localStorage.getItem('vrindavan_session') || sessionStorage.getItem('vrindavan_session');
 
     if (!token || !sessionStr) {
+      setIsLoggedIn(false);
       if (pathname === '/') {
         setIsAuthorized(true);
         return;
@@ -56,11 +62,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       const session = JSON.parse(sessionStr);
       const role = session?.user?.role;
       setUserRole(role);
+      setIsLoggedIn(true);
 
       // Both Admins and Vendors can access all pages in the dashboard
       // CRUD restrictions are handled at the component/API level
       setIsAuthorized(true);
     } catch (err) {
+      setIsLoggedIn(false);
       if (pathname === '/') {
         setIsAuthorized(true);
         return;
@@ -126,6 +134,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       return rtf.format(hours, 'hour');
     }
     return rtf.format(days, 'day');
+  };
+
+  const handleModalLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginEmail || !loginPass) {
+      showToast('Email and password required', 'error');
+      return;
+    }
+    setIsLoggingIn(true);
+    try {
+      const res = await api.adminLogin({ email: loginEmail, password: loginPass });
+      const session = { user: { fullName: res.user.name, email: res.user.email, role: res.user.role }, loggedInAt: Date.now(), remember: true };
+      localStorage.setItem('vrindavan_session', JSON.stringify(session));
+      localStorage.setItem('token', res.token);
+      showToast(`Welcome ${res.user.name}!`, 'success');
+      setShowLoginModal(false);
+      setIsLoggedIn(true);
+      window.location.reload();
+    } catch (err: any) {
+      showToast(err.message || 'Invalid credentials', 'error');
+    }
+    setIsLoggingIn(false);
   };
 
   const navItems = [
@@ -250,119 +280,130 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-3 relative">
             
-            {/* Quick Add Button */}
-            <button
-              onClick={() => {
-                setShowAddMenu(!showAddMenu);
-                setShowProfileMenu(false);
-                setShowNotifMenu(false);
-              }}
-              className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-lg transition-colors cursor-pointer"
-              aria-label="Add Menu"
-            >
-              +
-            </button>
-
-            {/* Notifications Button */}
-            <button
-              onClick={() => {
-                setShowNotifMenu(!showNotifMenu);
-                setShowAddMenu(false);
-                setShowProfileMenu(false);
-              }}
-              className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer relative"
-              aria-label="Notifications"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-white"></span>
-              )}
-            </button>
-
-            {/* Profile Avatar Button */}
-            <button
-              onClick={() => {
-                setShowProfileMenu(!showProfileMenu);
-                setShowAddMenu(false);
-                setShowNotifMenu(false);
-              }}
-              className="w-9 h-9 rounded-full border border-slate-200 overflow-hidden cursor-pointer bg-slate-100 flex-shrink-0"
-              aria-label="Profile Menu"
-            >
-              <img
-                src="https://ghungroowale.com/logo.png"
-                alt="profile"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23eef2ff%22/%3E%3Ctext x=%229%22 y=%2222%22 fill=%22%233b4b6e%22 font-size=%2214%22%3EP%3C/text%3E%3C/svg%3E';
-                }}
-              />
-            </button>
-
-            {/* Quick Add Dropdown Menu */}
-            {showAddMenu && (
-              <div className="absolute right-12 top-11 w-56 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50 animate-slide-up">
-                <span className="px-4 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider block">Add New</span>
-                <Link href="/rooms/new" onClick={() => setShowAddMenu(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  🚪 New Room
-                </Link>
-                <Link href="/staff/new" onClick={() => setShowAddMenu(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  👤 New Staff Member
-                </Link>
-                <Link href="/food/new" onClick={() => setShowAddMenu(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  🍳 New Food Item
-                </Link>
-                <Link href="/nearby/new" onClick={() => setShowAddMenu(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  📍 New Nearby Place
-                </Link>
-                <div className="border-t border-slate-100 my-1"></div>
-                <Link href="/settings/amenities" onClick={() => setShowAddMenu(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  ✨ Manage Amenities
-                </Link>
-              </div>
-            )}
-
-            {/* Notifications Dropdown Menu */}
-            {showNotifMenu && (
-              <div className="absolute right-6 top-11 w-80 rounded-2xl bg-white border border-slate-200 shadow-xl p-3 z-50 animate-slide-up space-y-2">
-                <div className="flex justify-between items-center px-1 pb-2 border-b border-slate-100">
-                  <span className="text-sm font-bold text-slate-800">Notifications</span>
-                  <button onClick={() => setUnreadCount(0)} className="text-xs text-amber-600 font-semibold cursor-pointer">Mark all read</button>
-                </div>
-                <div className="max-h-64 overflow-y-auto custom-scrollbar space-y-2 text-xs">
-                  {notifications.length > 0 ? (
-                    notifications.map((notif) => (
-                      <div key={notif.id} className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors">
-                        <p className="text-slate-800 font-medium">{notif.message}</p>
-                        <span className="text-[10px] text-slate-400 block mt-1 capitalize">{getRelativeTime(notif.time)}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-4 text-center text-slate-500">No new notifications</div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Profile Dropdown Menu */}
-            {showProfileMenu && (
-              <div className="absolute right-0 top-11 w-48 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50 animate-slide-up">
-                <Link href="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  👤 Edit Profile
-                </Link>
-                <Link href="/support" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  💬 Contact Support
-                </Link>
-                <div className="border-t border-slate-100 my-1"></div>
+            {!isLoggedIn ? (
+              <button
+                onClick={() => setShowLoginModal(true)}
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-xl text-sm transition-colors cursor-pointer shadow-sm"
+              >
+                Login / Sign Up
+              </button>
+            ) : (
+              <>
+                {/* Quick Add Button */}
                 <button
-                  onClick={handleLogout}
-                  className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium"
+                  onClick={() => {
+                    setShowAddMenu(!showAddMenu);
+                    setShowProfileMenu(false);
+                    setShowNotifMenu(false);
+                  }}
+                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-lg transition-colors cursor-pointer"
+                  aria-label="Add Menu"
                 >
-                  🚪 Logout
+                  +
                 </button>
-              </div>
+
+                {/* Notifications Button */}
+                <button
+                  onClick={() => {
+                    setShowNotifMenu(!showNotifMenu);
+                    setShowAddMenu(false);
+                    setShowProfileMenu(false);
+                  }}
+                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer relative"
+                  aria-label="Notifications"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-white"></span>
+                  )}
+                </button>
+
+                {/* Profile Avatar Button */}
+                <button
+                  onClick={() => {
+                    setShowProfileMenu(!showProfileMenu);
+                    setShowAddMenu(false);
+                    setShowNotifMenu(false);
+                  }}
+                  className="w-9 h-9 rounded-full border border-slate-200 overflow-hidden cursor-pointer bg-slate-100 flex-shrink-0"
+                  aria-label="Profile Menu"
+                >
+                  <img
+                    src="https://ghungroowale.com/logo.png"
+                    alt="profile"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23eef2ff%22/%3E%3Ctext x=%229%22 y=%2222%22 fill=%22%233b4b6e%22 font-size=%2214%22%3EP%3C/text%3E%3C/svg%3E';
+                    }}
+                  />
+                </button>
+
+                {/* Quick Add Dropdown Menu */}
+                {showAddMenu && (
+                  <div className="absolute right-12 top-11 w-56 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50 animate-slide-up">
+                    <span className="px-4 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider block">Add New</span>
+                    <Link href="/rooms/new" onClick={() => setShowAddMenu(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                      🚪 New Room
+                    </Link>
+                    <Link href="/staff/new" onClick={() => setShowAddMenu(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                      👤 New Staff Member
+                    </Link>
+                    <Link href="/food/new" onClick={() => setShowAddMenu(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                      🍳 New Food Item
+                    </Link>
+                    <Link href="/nearby/new" onClick={() => setShowAddMenu(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                      📍 New Nearby Place
+                    </Link>
+                    <div className="border-t border-slate-100 my-1"></div>
+                    <Link href="/settings/amenities" onClick={() => setShowAddMenu(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                      ✨ Manage Amenities
+                    </Link>
+                  </div>
+                )}
+
+                {/* Notifications Dropdown Menu */}
+                {showNotifMenu && (
+                  <div className="absolute right-6 top-11 w-80 rounded-2xl bg-white border border-slate-200 shadow-xl p-3 z-50 animate-slide-up space-y-2">
+                    <div className="flex justify-between items-center px-1 pb-2 border-b border-slate-100">
+                      <span className="text-sm font-bold text-slate-800">Notifications</span>
+                      <button onClick={() => setUnreadCount(0)} className="text-xs text-amber-600 font-semibold cursor-pointer">Mark all read</button>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto custom-scrollbar space-y-2 text-xs">
+                      {notifications.length > 0 ? (
+                        notifications.map((notif) => (
+                          <div key={notif.id} className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors">
+                            <p className="text-slate-800 font-medium">{notif.message}</p>
+                            <span className="text-[10px] text-slate-400 block mt-1 capitalize">{getRelativeTime(notif.time)}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-4 text-center text-slate-500">No new notifications</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Profile Dropdown Menu */}
+                {showProfileMenu && (
+                  <div className="absolute right-0 top-11 w-48 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50 animate-slide-up">
+                    <Link href="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                      👤 Edit Profile
+                    </Link>
+                    <Link href="/support" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                      💬 Contact Support
+                    </Link>
+                    <div className="border-t border-slate-100 my-1"></div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium"
+                    >
+                      🚪 Logout
+                    </button>
+                  </div>
+                )}
+              </>
             )}
 
           </div>
@@ -406,6 +447,60 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </footer>
 
       </div>
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setShowLoginModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-5 border-b border-slate-100">
+              <h3 className="font-bold text-xl text-slate-800">Welcome Back</h3>
+              <button onClick={() => setShowLoginModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <form onSubmit={handleModalLogin} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                  <input 
+                    type="email" 
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="Enter your email" 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                  <input 
+                    type="password" 
+                    value={loginPass}
+                    onChange={(e) => setLoginPass(e.target.value)}
+                    placeholder="Enter your password" 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  disabled={isLoggingIn}
+                  className={`w-full py-2.5 rounded-xl font-bold text-slate-900 transition-all ${isLoggingIn ? 'bg-amber-300' : 'bg-amber-500 hover:bg-amber-600'} shadow-sm`}
+                >
+                  {isLoggingIn ? 'Logging in...' : 'Login'}
+                </button>
+              </form>
+              <div className="mt-6 text-center text-sm text-slate-500">
+                Don't have an account?{' '}
+                <Link href="/login" className="text-amber-600 font-semibold hover:underline" onClick={() => setShowLoginModal(false)}>
+                  Sign up here
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
